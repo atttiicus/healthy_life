@@ -6,7 +6,7 @@ import koaBody from 'koa-body'
 import { errorHandler, responseHandler } from './middleware/response'
 import { FIXED_KEY, NGINX_STATIC_PATH} from './config/constant'
 import { getIPAddress } from './utils/util'
-import { privateRouter, publicRouter } from './router'
+import { privateRouter, publicRouter, adminPrivateRouter } from './router'
 import fs from 'fs';
 
 const app = new Koa()
@@ -28,6 +28,7 @@ app.use(koaBody({
 
 app.use(publicRouter.routes()).use(publicRouter.allowedMethods())
 app.use(privateRouter.routes()).use(privateRouter.allowedMethods())
+app.use(adminPrivateRouter.routes()).use(adminPrivateRouter.allowedMethods())
 
 app.use(responseHandler)
 
