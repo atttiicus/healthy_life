@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 import { Context, Next } from 'koa'
 import { CODE } from '../../../config/code'
 import {

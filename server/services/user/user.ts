@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 import NormalUser from '../../models/normalUser'
 
 const SALT_ROUNDS = 10

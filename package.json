@@ -1,4 +1,8 @@
 {
+  "scripts": {
+    "dev": "bash start.sh dev",
+    "prod": "bash start.sh prod"
+  },
   "dependencies": {
     "echarts": "^5.4.3"
   }
