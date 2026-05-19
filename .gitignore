@@ -1,0 +1,11 @@
+node_modules
+.vscode
+.idea
+
+*/node_modules
+*/.vscode
+*/.idea
+/server/log/logs/
+/app/src/static/temp/
+
+ai_docs

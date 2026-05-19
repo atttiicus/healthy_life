@@ -1,0 +1,101 @@
+{
+	"pages": [
+		{
+			"path": "pages/index/index",
+			"style": {
+				"navigationBarTitleText": "健康生活"
+			}
+		},
+		{
+			"path": "pages/article/index",
+			"style": {
+				"navigationBarTitleText": "文章资讯"
+			}
+		},
+		{
+			"path": "pages/article/content",
+			"style": {
+				"navigationBarTitleText": "健康文章"
+			}
+		},
+		{
+			"path": "pages/life/index",
+			"style": {
+				"navigationBarTitleText": "生活空间"
+			}
+		},
+		{
+			"path": "pages/life/report",
+			"style": {
+				"navigationBarTitleText": "健康报告"
+			}
+		},
+		{
+			"path": "pages/user/index",
+			"style": {
+				"navigationBarTitleText": "我的"
+			}
+		},
+		{
+			"path": "pages/user/login",
+			"style": {
+				"navigationBarTitleText": "登录"
+			}
+		},
+		{
+			"path": "pages/user/register",
+			"style": {
+				"navigationBarTitleText": "注册"
+			}
+		},
+		{
+			"path": "pages/user/announcement",
+			"style": {
+				"navigationBarTitleText": "官方公告"
+			}
+		},
+		{
+			"path": "pages/user/update",
+			"style": {
+				"navigationBarTitleText": "数据修改"
+			}
+		}
+	],
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "uni-app",
+		"navigationBarBackgroundColor": "#F8F8F8",
+		"backgroundColor": "#F8F8F8"
+	},
+	"tabBar": {
+		"color": "#7A7E83",
+		"selectedColor": "#00b09a",
+		"borderStyle": "black",
+		"backgroundColor": "#ffffff",
+		"height": "50px",
+		"fontSize": "10px",
+		"iconWidth": "24px",
+		"spacing": "3px",
+		"list": [{
+			"pagePath": "pages/index/index",
+			"iconPath": "static/images/tabber/home_off.png",
+			"selectedIconPath": "static/images/tabber/home_on.png",
+			"text": "主页"
+		}, {
+			"pagePath": "pages/life/index",
+			"iconPath": "static/images/tabber/movement_off.png",
+			"selectedIconPath": "static/images/tabber/movement_on.png",
+			"text": "生活"
+		}, {
+			"pagePath": "pages/article/index",
+			"iconPath": "static/images/tabber/message_off.png",
+			"selectedIconPath": "static/images/tabber/message_on.png",
+			"text": "资讯"
+		}, {
+			"pagePath": "pages/user/index",
+			"iconPath": "static/images/tabber/user_off.png",
+			"selectedIconPath": "static/images/tabber/user_on.png",
+			"text": "用户"
+		}]
+	}
+}

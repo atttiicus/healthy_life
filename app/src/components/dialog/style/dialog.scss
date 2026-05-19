@@ -1,0 +1,130 @@
+.dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
+  z-index: 100;
+  background: rgba(0,0,0,.7);
+  .content {
+    position: relative;
+    box-sizing: border-box;
+    .btn-close {
+      position: absolute;
+      top: -80upx;
+      right: 10upx;
+      font-weight: 800;
+      font-size: 60upx;
+      color: var(--main-color);
+    }
+  }
+}
+
+.dialog-day-data {
+  width: 680upx;
+  height: 880upx;
+  background-color: #fff;
+  border-radius: 10upx;
+  box-shadow: 4upx 4upx 4upx 10upx rgba(0,0,0,.3);
+  .title {
+    margin-top: 20upx;
+    font-weight: 800;
+    font-size: 40upx;
+    letter-spacing: 4upx;
+    text-indent: 4upx;
+    color: var(--main-color);
+    text-align: center;
+  }
+  .header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    width: 100%;
+    height: 75upx;
+    font-weight: 800;
+    line-height: 75upx;
+    border-bottom: 2upx solid var(--main-color);
+    z-index: 10;
+    .col {
+      width: 400upx;
+      font-size: 34upx;
+      text-align: center;
+      letter-spacing: 12upx;
+      text-indent: 12upx;
+      color: var(--main-color);
+      &.right {
+        width: 200upx;
+        color: var(--reve-color);
+      }
+    }
+  }
+  .data-cont {
+    padding-top: 75upx;
+    position: relative;
+    margin: 20upx auto 0;
+    width: 600upx;
+    height: 480upx;
+    border: 1px solid var(--main-color);
+    .data-list {
+      overflow-y: scroll;
+      width: 600upx;
+      height: 405upx;
+      .data-item {
+        display: flex;
+        width: 100%;
+        height: 90upx;
+        border-bottom: 2upx solid var(--main-color);
+        .col {
+          height: 90upx;
+          font-size: 38upx;
+          line-height: 90upx;
+          text-align: center;
+          letter-spacing: 12upx;
+          text-indent: 12upx;
+          color: var(--main-color);
+          &.left {
+            width: 400upx;
+            font-size: 32upx;
+            letter-spacing: 2upx;
+            text-indent: 2upx;
+          }
+          &.right {
+            width: 200upx;
+            border-left: 2upx solid var(--main-color);
+            color: var(--reve-color);
+            letter-spacing: 1upx;
+          }
+        }
+      }
+    }
+    .update-btn {
+      margin: 10px auto 0;
+      width: 300upx;
+      height: 80upx;
+      letter-spacing: 6upx;
+      text-indent: 6upx;
+      font-weight: 800;
+      line-height: 80upx;
+      text-align: center;
+      border-radius: 6upx;
+      color: #ffffff;
+      background-color: var(--reve-color);
+    }
+  }
+  .tips-list {
+    margin-top: 16upx;
+    width: 600upx;
+    .tips {
+      font-size: 26upx;
+      color: #888;
+      &.color {
+        opacity: .8;
+        color: var(--reve-color);
+      }
+    }
+  }
+}
