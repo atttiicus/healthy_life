@@ -1,39 +1,28 @@
 import Koa from 'koa'
-import { decodeToken, verifyJWTToken } from '../utils/util'
+import { verifyJWTToken } from '../utils/util'
 import { CODE } from '../config/code'
 import { getUserInfosService } from '../services/user/user'
 import { JWT } from '../config/constant'
-import jwt from 'jsonwebtoken'
 
-// jwt校验
-export const jwtMiddlewareDeal = async (ctx: Koa.Context, next:Koa.Next) => {
-  // 获取用户token
+export const jwtMiddlewareDeal = async (ctx: Koa.Context, next: Koa.Next) => {
   const token = ctx.request.headers.token
 
-  if (typeof token === "string") {
-    try {
+  if (typeof token !== "string") throw CODE.tokenFailed
 
-      // 验证token
-      const decoded = verifyJWTToken(token, JWT.secret) as jwt.JwtPayload
+  try {
+    const decoded = verifyJWTToken(token, JWT.secret)
+    const userId = decoded.userId
 
-      // 解析用户token
-      let userId = decoded.userid
+    if (typeof userId !== 'number') throw CODE.tokenFailed
 
-      if (typeof userId === 'string' )  throw CODE.tokenFailed
+    const userInfo = await getUserInfosService(userId)
+    if (!userInfo) throw CODE.tokenFailed
 
-      let userInfo = await getUserInfosService(userId)
-
-      if (!userInfo) {
-        throw CODE.tokenFailed
-      } else {
-        ctx.userId = userId
-        ctx.userInfo = userInfo
-      }
-    } catch (err) {
-      throw CODE.tokenFailed
-    }
-  } else {
+    ctx.userId = userId
+    ctx.userInfo = userInfo
+  } catch (err) {
     throw CODE.tokenFailed
   }
+
   return next()
 }

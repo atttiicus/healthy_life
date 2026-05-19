@@ -7,5 +7,6 @@ node_modules
 */.idea
 /server/log/logs/
 /app/src/static/temp/
+/server/.env
 
 ai_docs

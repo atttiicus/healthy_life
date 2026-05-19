@@ -6,7 +6,8 @@
     "strict": true, // 严格模式
     "allowSyntheticDefaultImports": true, // 没有默认导出时, 编译器会创建一个默认导出
     "esModuleInterop": true, // 允许export= 导出, 由import from导入
-    "forceConsistentCasingInFileNames": true // 禁止对同一个文件的不一致的引用
+    "forceConsistentCasingInFileNames": true, // 禁止对同一个文件的不一致的引用
+    "typeRoots": ["./types", "./node_modules/@types"]
   },
   "exclude": ["node_modules", "dist"],
   "ts-node": {

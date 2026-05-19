@@ -1,37 +1,39 @@
 // 环境参数
 export const ENV = {
-  development: "development", // 开发
-  production: "production" // 生产
+  development: "development",
+  production: "production"
 }
 
 // 固定端口参数
 export const FIXED_KEY = {
-  port: 2233
+  port: Number(process.env.PORT) || 2233
 }
 
 export const DATABASE = {
   development: {
-    dbName: "db_life",
-    user: "root",
-    password: "root",
-    host: "localhost",
-    port: 3306
+    dbName: process.env.DB_NAME || "postgres",
+    user: process.env.DB_USER || "postgres",
+    password: process.env.DB_PASSWORD || "",
+    host: process.env.DB_HOST || "localhost",
+    port: Number(process.env.DB_PORT) || 5432
   },
   production: {
-    dbName: "db_life",
-    user: "root",
-    password: "root",
-    host: "localhost",
-    port: 3306
+    dbName: process.env.DB_NAME || "postgres",
+    user: process.env.DB_USER || "postgres",
+    password: process.env.DB_PASSWORD || "",
+    host: process.env.DB_HOST || "localhost",
+    port: Number(process.env.DB_PORT) || 5432
   }
 }
 
 // JWT token配置参数
 export const JWT = {
-  secret: "ConanEdogawa",
+  secret: process.env.JWT_SECRET || "change_this_secret",
   expires: 60 * 60 * 24 * 30 // 30day
 }
 
-export  const NGINX_STATIC_PATH = {
-  uploadPath: "D:\\Devtool\\Nginx\\nginx-1.24.0\\html\\project\\HL\\static",
+export const NGINX_STATIC_PATH = {
+  uploadPath: process.env.STATIC_UPLOAD_PATH || "./uploads",
 }
+
+export const STATIC_BASE_URL = process.env.STATIC_BASE_URL || "http://localhost:9999/project/HL/static/"

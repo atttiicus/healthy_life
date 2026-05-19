@@ -1,72 +1,38 @@
-import { Context } from 'vm'
+import os from 'os'
 import jwt from 'jsonwebtoken'
 import { JWT } from '../config/constant'
 
-
-
-/**
- * @description: 获取当前服务的ip地址
- * @return
- * */
-export const getIPAddress = () => {
-  const interfaces = require("os").networkInterfaces()
+export const getIPAddress = (): string => {
+  const interfaces = os.networkInterfaces()
   for (const devName in interfaces) {
     const temp = interfaces[devName]
-    for (let i = 0; i < temp?.length; i++) {
+    if (!temp) continue
+    for (let i = 0; i < temp.length; i++) {
       const alias = temp[i]
-      if (alias.family === "IPv4" && alias.address !== '127.0.0.1' && !alias.internal){
+      if (alias.family === "IPv4" && alias.address !== '127.0.0.1' && !alias.internal) {
         return alias.address
       }
     }
   }
+  return "127.0.0.1"
 }
 
-/**
- * @description: 获取客户端ip地址
- * @param ctx {Context} : 上下文对象
- * @return ipAddr {string} : ip地址字符串
- * */
-export const getClientIPAddress = (ctx: Context):string => {
-  const  headers = ctx.headers
-
-  if (headers["x-forwarded-for"]) {
-    const ipList:string = headers["x-forwarded-for"].split(",")
-    return ipList
+export const getClientIPAddress = (ctx: { headers: Record<string, string | string[] | undefined> }): string => {
+  const forwarded = ctx.headers["x-forwarded-for"]
+  if (forwarded) {
+    return String(forwarded).split(",")[0].trim()
   }
   return "0.0.0.0"
 }
 
-/**
- * @description: 解析token获取userid
- * @param token {string} : token
- * @return number/string
- * */
-export const decodeToken = (token: string) => {
-  let jwtInfo = jwt.verify(token, JWT.secret) as any
-  try {
-    return jwtInfo.userId as number
-  } catch (err) {
-    return  "token不合法"
-  }
-}
-
-/**
- * @description: 根据userId生成token
- * @param userId {number} : userid
- * @return token
- * */
 export const generatorToken = (userId: number): string => {
-  return jwt.sign( {userId}, JWT.secret, { expiresIn: JWT.expires })
+  return jwt.sign({ userId }, JWT.secret, { expiresIn: JWT.expires })
 }
 
-/**
- * @description: 验证 JWTToken 的签名和有效期
- * @return
- * */
-export const verifyJWTToken = (token: string, secret: string) => {
+export const verifyJWTToken = (token: string, secret: string): jwt.JwtPayload => {
   try {
     const decoded = jwt.verify(token, secret)
-    return decoded
+    return decoded as jwt.JwtPayload
   } catch (err) {
     throw new Error("token不合法")
   }
