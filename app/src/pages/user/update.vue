@@ -1,181 +1,330 @@
 <template>
-  <view class="content" style='padding: 0'>
-    <van-divider>账户信息</van-divider>
-    <van-form @submit="onSubmit">
-      <van-field
-        v-model="username"
-        name="用户名"
-        label="用户名"
-        placeholder="用户名"
-        :rules="[{ required: true, message: '请填写用户名' }]"
-      />
-      <van-field
-        v-model="old_password"
-        type="password"
-        name="原密码"
-        label="原密码"
-        placeholder="原密码"
-        :rules="[{ required: true, message: '请填写原密码' }]"
-      />
-      <van-field
-        v-model="old_password"
-        type="password"
-        name="新密码"
-        label="新密码"
-        placeholder="新密码"
-        :rules="[{ required: true, message: '请填写原密码' }]"
-      />
-      <van-field name="uploader" label="头像上传" @tap='uploadUserImage'>
-        <template #input>
-          <van-uploader :max-size="500 * 1024" disabled @oversize="onOversize" />
-        </template>
-      </van-field>
+  <view class="min-h-screen bg-[#f5f7fa]">
 
-      <van-divider>个人信息</van-divider>
+    <!-- 顶部渐变头 -->
+    <view class="px-5 pt-10 pb-14"
+          style="background:linear-gradient(135deg,#10b981 0%,#059669 100%)">
+      <text class="text-white font-bold block" style="font-size:22px">编辑资料</text>
+      <text class="text-sm block mt-1" style="color:rgba(255,255,255,.7)">
+        修改您的账户信息和个人数据
+      </text>
+    </view>
 
-      <van-field
-        v-model="username"
-        name="性别"
-        label="性别"
-        placeholder="性别"
-        :rules="[{ required: true, message: '请填写性别' }]"
-      />
-      <van-field
-        v-model="old_password"
-        type="password"
-        name="年龄"
-        label="年龄"
-        placeholder="年龄"
-        :rules="[{ required: true, message: '请填写年龄' }]"
-      />
-      <van-field
-        v-model="old_password"
-        type="password"
-        ref="iWeight"
-        name="体重"
-        label="体重"
-        placeholder="体重"
-        :rules="[{ required: true, message: '请填写体重' }]"
-      />
-      <van-field
-        v-model="old_password"
-        type="password"
-        ref="iHeight"
-        name="身高"
-        label="身高"
-        placeholder="身高"
-        :rules="[{ required: true, message: '请填写身高' }]"
-      />
-      <van-field
-        v-model="old_password"
-        type="password"
-        ref="iCholesterol"
-        name="血压"
-        label="血压"
-        placeholder="血压"
-        :rules="[{ required: true, message: '请填写血压' }]"
-      />
-      <van-field
-        v-model="old_password"
-        type="password"
-        ref="iHeartRate"
-        name="心率"
-        label="心率"
-        placeholder="心率"
-        :rules="[{ required: true, message: '请填写心率' }]"
-      />
-      <div style="margin: 16px;">
-        <van-button round block type="info" native-type="submit">提交</van-button>
-      </div>
-    </van-form>
+    <view class="px-4 -mt-8 flex flex-col gap-4 pb-8">
+
+      <!-- 账户信息卡 -->
+      <view class="card overflow-hidden" style="box-shadow:0 4px 16px rgba(0,0,0,.08)">
+        <view class="px-4 pt-4 pb-2">
+          <text class="text-xs font-semibold text-[#9ca3af] uppercase tracking-wider">账户信息</text>
+        </view>
+
+        <view class="field-row" @tap="focusInput('username')">
+          <view class="field-icon-wrap">
+            <text>👤</text>
+          </view>
+          <view class="field-body">
+            <text class="field-label">用户名</text>
+            <input
+              ref="username"
+              class="field-input"
+              v-model="form.username"
+              placeholder="请输入用户名"
+              placeholder-style="color:#c4c9d4"
+            />
+          </view>
+        </view>
+        <view class="divider-line" />
+
+        <view class="field-row" @tap="focusInput('oldPassword')">
+          <view class="field-icon-wrap">
+            <text>🔒</text>
+          </view>
+          <view class="field-body">
+            <text class="field-label">原密码</text>
+            <input
+              ref="oldPassword"
+              class="field-input"
+              v-model="form.old_password"
+              password
+              placeholder="请输入原密码"
+              placeholder-style="color:#c4c9d4"
+            />
+          </view>
+        </view>
+        <view class="divider-line" />
+
+        <view class="field-row" @tap="focusInput('newPassword')">
+          <view class="field-icon-wrap">
+            <text>✏️</text>
+          </view>
+          <view class="field-body">
+            <text class="field-label">新密码</text>
+            <input
+              ref="newPassword"
+              class="field-input"
+              v-model="form.new_password"
+              password
+              placeholder="不修改请留空"
+              placeholder-style="color:#c4c9d4"
+            />
+          </view>
+        </view>
+        <view class="divider-line" />
+
+        <!-- 头像上传 -->
+        <view class="field-row" @tap="uploadUserImage">
+          <view class="field-icon-wrap">
+            <text>📷</text>
+          </view>
+          <view class="field-body">
+            <text class="field-label">头像</text>
+            <view class="avatar-picker">
+              <image
+                v-if="form.newImage"
+                :src="form.newImage"
+                class="avatar-img"
+                mode="aspectFill"
+              />
+              <view v-else class="avatar-placeholder">
+                <text style="color:#9ca3af;font-size:11px">点击上传</text>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 个人信息卡 -->
+      <view class="card overflow-hidden">
+        <view class="px-4 pt-4 pb-2">
+          <text class="text-xs font-semibold text-[#9ca3af] uppercase tracking-wider">个人信息</text>
+        </view>
+
+        <view
+          v-for="item in personalFields"
+          :key="item.key"
+        >
+          <view class="field-row" @tap="focusInput(item.key)">
+            <view class="field-icon-wrap">
+              <text>{{ item.icon }}</text>
+            </view>
+            <view class="field-body">
+              <text class="field-label">{{ item.label }}</text>
+              <view class="flex items-center gap-2 flex-1">
+                <input
+                  :ref="item.key"
+                  class="field-input flex-1"
+                  v-model="form[item.key]"
+                  :type="item.type || 'text'"
+                  :placeholder="item.placeholder"
+                  placeholder-style="color:#c4c9d4"
+                />
+                <text v-if="item.unit" class="field-unit">{{ item.unit }}</text>
+              </view>
+            </view>
+          </view>
+          <view class="divider-line" />
+        </view>
+      </view>
+
+      <!-- 提交按钮 -->
+      <view
+        class="h-12 rounded-xl flex items-center justify-center"
+        style="background:linear-gradient(135deg,#10b981,#059669)"
+        @tap="onSubmit"
+      >
+        <text class="text-white font-semibold text-sm">保存修改</text>
+      </view>
+
+    </view>
   </view>
 </template>
 
 <script>
-
-import { Toast } from 'vant'
 import { mapMutations, mapState } from 'vuex'
 
 export default {
-
   data() {
     return {
-      queryID: "iWeight",
-      username: "",
-      old_password: "",
-      new_password: "",
-      age:"",
-      sex:"",
-      weight:"",
-      height:"",
-      cholesterol:"",
-      heartRate:"",
-      newImage:""
-    };
+      queryID: 'username',
+      form: {
+        username:     '',
+        old_password: '',
+        new_password: '',
+        sex:          '',
+        age:          '',
+        weight:       '',
+        height:       '',
+        cholesterol:  '',
+        heartRate:    '',
+        newImage:     '',
+      },
+    }
   },
   computed: {
     ...mapState(['user']),
-
+    personalFields() {
+      return [
+        { key: 'sex',         icon: '⚧',  label: '性别', placeholder: '男 / 女'         },
+        { key: 'age',         icon: '🎂',  label: '年龄', placeholder: '请输入年龄',  type: 'number', unit: '岁'  },
+        { key: 'weight',      icon: '⚖️',  label: '体重', placeholder: '请输入体重',  type: 'number', unit: 'kg'  },
+        { key: 'height',      icon: '📏',  label: '身高', placeholder: '请输入身高',  type: 'number', unit: 'cm'  },
+        { key: 'cholesterol', icon: '💉',  label: '血压', placeholder: '如 120/80'                                },
+        { key: 'heartRate',   icon: '❤️',  label: '心率', placeholder: '请输入心率',  type: 'number', unit: 'bpm' },
+      ]
+    },
+  },
+  onLoad(query) {
+    this.queryID = query.id || 'username'
+    // 预填用户现有数据
+    if (this.user) {
+      this.form.username = this.user.user_name || ''
+      this.form.sex      = this.user.sex       || ''
+      this.form.age      = this.user.age       || ''
+      this.form.weight   = this.user.weight    || ''
+      this.form.height   = this.user.height    || ''
+    }
+  },
+  mounted() {
+    // 自动聚焦到指定字段
+    this.$nextTick(() => {
+      const ref = this.$refs[this.queryID]
+      if (ref) {
+        const el = Array.isArray(ref) ? ref[0] : ref
+        el && el.$el ? el.$el.focus() : el && el.focus && el.focus()
+      }
+    })
   },
   methods: {
-
-    // 用户头像文件上传
+    ...mapMutations(['setUser']),
+    focusInput(key) {
+      const ref = this.$refs[key]
+      if (!ref) return
+      const el = Array.isArray(ref) ? ref[0] : ref
+      el && el.$el ? el.$el.focus() : el && el.focus && el.focus()
+    },
     uploadUserImage() {
-      let that = this
       uni.chooseImage({
         count: 1,
         sizeType: ['compressed'],
         sourceType: ['album', 'camera'],
-        success: function (chooseResult) {
-          const tempFilePaths = chooseResult.tempFilePaths;
+        success: (res) => {
           uni.uploadFile({
             url: '/api/upload',
-            filePath: tempFilePaths[0], // 要上传的文件路径
-            name: 'file', // 上传文件对应的 key，后端会根据这个 key 来获取文件
-            success: function (result) {
-              Toast("上传成功")
-              that.newImage = JSON.parse(result.data).data.path
+            filePath: res.tempFilePaths[0],
+            name: 'file',
+            success: (result) => {
+              this.form.newImage = JSON.parse(result.data).data.path
+              uni.showToast({ title: '上传成功', icon: 'success' })
             },
-            fail: function (error) {
-              console.log('上传失败', error);
-            }
-          });
-        }
-      });
+            fail: () => {
+              uni.showToast({ title: '上传失败', icon: 'error' })
+            },
+          })
+        },
+      })
     },
-    // 文件上传限制
-    onOversize(file) {
-      Toast("当前图片过大, 请不要超过 500KB")
-    },
-    // 将base64格式的图片转换为文件对象
-    base64ToFile(base64Data, fileName) {
-      const arr = base64Data.split(',');
-      const mime = arr[0].match(/:(.*?);/)[1];
-      const bstr = atob(arr[1]);
-      let n = bstr.length;
-      const u8arr = new Uint8Array(n);
-      while (n--) {
-        u8arr[n] = bstr.charCodeAt(n);
+    onSubmit() {
+      if (!this.form.username) {
+        uni.showToast({ title: '用户名不能为空', icon: 'error' }); return
       }
-      return new File([u8arr], fileName, { type: mime });
-    },
-    // 获取文件扩展名
-    getFileExtension(filename) {
-      return filename.slice((filename.lastIndexOf(".") - 1 >>> 0) + 2);
-    }
+      const data = {
+        uid:       this.user.uid,
+        user_name: this.form.username,
+        sex:       this.form.sex,
+        age:       this.form.age,
+        weight:    this.form.weight,
+        height:    this.form.height,
+      }
+      if (this.form.new_password) data.password = this.form.new_password
+      if (this.form.newImage)     data.avatar   = this.form.newImage
 
-},
-  mounted() {
-    // 进入页面后自动锁定一个参数, 锁定参数由传入 queryID 决定.
-    this.$refs[this.queryID].focus()
+      uni.request({
+        method: 'POST',
+        url: '/api/user/update',
+        data,
+        header: { token: this.user.token, 'Content-Type': 'application/x-www-form-urlencoded' },
+        success: (res) => {
+          if (res.data.data) {
+            uni.showToast({ title: '修改成功', icon: 'success' })
+            setTimeout(() => uni.navigateBack(), 800)
+          } else {
+            uni.showToast({ title: res.data.message || '修改失败', icon: 'error' })
+          }
+        },
+      })
+    },
   },
-  onLoad(query) {
-    // 获取 URL 携带参数
-    this.queryID = query.id
-  }
 }
 </script>
 
 <style scoped>
-@import "style/login.scss";
+.field-row {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  gap: 12px;
+  cursor: pointer;
+}
+.field-icon-wrap {
+  width: 34px;
+  height: 34px;
+  background: #f0fdf4;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.field-body {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  gap: 8px;
+}
+.field-label {
+  font-size: 14px;
+  color: #374151;
+  font-weight: 500;
+  width: 48px;
+  flex-shrink: 0;
+}
+.field-input {
+  flex: 1;
+  font-size: 14px;
+  color: #111827;
+  background: transparent;
+  border: none;
+  outline: none;
+  text-align: right;
+}
+.field-unit {
+  font-size: 12px;
+  color: #9ca3af;
+  flex-shrink: 0;
+}
+.divider-line {
+  height: 1px;
+  background: #f3f4f6;
+  margin-left: 62px;
+}
+.avatar-picker {
+  margin-left: auto;
+}
+.avatar-img {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.avatar-placeholder {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #f3f4f6;
+  border: 1.5px dashed #d1d5db;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 </style>

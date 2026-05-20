@@ -1,3 +1,5 @@
+import './styles/uno.css'
+import { installMock } from './mock/index'
 import Vue from 'vue'
 import App from './App'
 import Vant from "vant";
@@ -17,6 +19,9 @@ Vue.use(Vant)
 Vue.use(Notify);
 Vue.config.productionTip = false
 Vue.prototype.$echarts = echarts
+
+// 开发模式启用 mock，后端未启动时自动返回 mock 数据
+installMock()
 
 App.mpType = 'app'
 
