@@ -1,112 +1,232 @@
-# 项目结构说明
+# 健康生活 Healthy Life
+
+一个基于 UniApp + Vue 2 的健康管理小程序，配套 Koa2 后端服务和 Vue 3 管理中台。
+
+---
+
+## 技术栈
+
+| 模块 | 技术 |
+|---|---|
+| 用户端小程序 | UniApp · Vue 2 · Vant · ECharts · UnoCSS |
+| 管理中台 | Vue 3 · Vite · Element Plus · TypeScript · Pinia |
+| 后端服务 | Node.js 18 · Koa2 · TypeScript · Sequelize |
+| 数据库 | PostgreSQL（Supabase 云托管） |
+| 静态资源 | Nginx |
+
+---
+
+## 项目结构
 
 ```
-Healthy_Lift
-    ├─ app                      前端小程序
-        ├─ public                       公共资源
-        ├─ src                          前端程序源码
-        ├─ package.json                 项目配置文件
-        └─ README                       前端程序说明文档    
-    ├─ server                   后端服务
-        ├─ config                       服务配置
-        ├─ controller                   服务控制器
-        ├─ log                          服务日志
-        ├─ middleware                   服务中间件
-        ├─ models                       数据库映射模型  
-        ├─ router                       服务路由
-        ├─ services                     服务处理器
-        ├─ utils                        公共工具类
-        ├─ app.ts                       服务入口函数
-        ├─ package.json                 项目配置文件
-        ├─ tsconfig.json                TS配置文件
-        └─ README                       后端服务说明文档          
-    ├─ project                  静态资源文件夹
-    ├─ db_left.sql              MySQL测试数据脚本
-    ├─ ProjectDescription.md    项目需求说明文档  
-    └─ README                   项目综合说明文档
+healthy_life/
+├── app/              用户端小程序（UniApp Vue 2，端口 8080）
+├── server/           后端 API 服务（Koa2，端口 2233）
+├── admin/            管理中台（Vue 3，端口 5173）
+├── project/          Nginx 静态资源目录
+├── start.sh          一键启动脚本
+├── db_life.sql       数据库初始化脚本（参考用）
+└── ai_docs/          项目文档与截图
 ```
 
-## Server
+---
 
-后端服务, 核心技术选择: Koa2 + TypeScript
+## 快速启动
 
-### 部署
-| 必要环境    | 版本要求     | 相关链接                                          | 其他说明 |
-|:--------|:---------|:----------------------------------------------|:-----|
-| node.js | v18.16.0 | https://nodejs.org/en/about/previous-releases |      |
-| mysql   | 5.7      | https://dev.mysql.com/downloads/mysql/        |      |
+### 一键启动（推荐）
 
-```
-启动步骤:
-1、 进入 "server" 目录, 打开命令行窗口执行 npm install 或者 yarn install
-2、 等待依赖下载完成, 在 "server" 目录下执行 npm run dev 或者 yarn run dev
-3、 等待相关配置加载完成, 待命令行输出 "Connection has been established successfully" 即可
+```bash
+# 开发模式：并发启动后端 + 管理中台 + 用户端
+bash start.sh dev
 
-说明:
-数据库默认端口: 3306, 默认账密: root/root
-服务默认端口: 2233
-若需修改, 则进入 /server/config/constant.ts 进行配置 
+# 生产模式：构建前端 + PM2 启动后端
+bash start.sh prod
 ```
 
-## App
+也可通过 npm：
 
-前端小程序应用, 技术框架采用 uniapp + vue
-
-### 部署
-| 必要环境    | 版本要求     | 相关链接                                          | 其他说明 |
-|:--------|:---------|:----------------------------------------------|:-----|
-| node.js | v18.16.0 | https://nodejs.org/en/about/previous-releases |      |
-
-```
-注意: 请尽量先启动 server服务 与 Nginx服务, 再启动 app小程序, 否则多数资源无法加载
-
-启动步骤:
-1、 进入 "app" 目录, 打开命令行窗口执行 npm install (此处不太建议使用yarn install, 部分环境下有问题)
-2、 等待依赖下载完成, 在 "app" 目录下执行 npm run dev:h5
-3、 等待相关配置加载完成, 待命令行输出 " App running at: ..... " 即可
-
-说明:
-小程序默认端口: 8080
-若需修改, 则进入 /app/src/manifest.json 进行配置 
+```bash
+npm run dev    # 开发模式
+npm run prod   # 生产模式
 ```
 
+### 手动启动
 
+```bash
+# 后端（监听 :2233）
+cd server && pnpm install && pnpm run dev
 
-## nginx
+# 管理中台（监听 :5173）
+cd admin && npm install && npm run dev
 
-用来部署静态资源文件
+# 用户端（监听 :8080）
+cd app && npm install && npm run dev:h5
+```
 
-### 部署
-| 必要环境  | 版本要求   | 相关链接                                    | 其他说明  |
-|:------|:-------|:----------------------------------------|:------|
-| nginx | 1.24.0 | https://nginx.p2hp.com/en/download.html | 中文网链接 |
+> **启动顺序建议**：后端 → 管理中台 → 用户端
 
-- 将 /project/ 目录放到nginx目录下的 /html/内
-- 并修改/conf/nginx.conf文件 (参考下文)
-- 然后启动nginx.exe即可
+---
 
-```conf
-....
-http {
-    ......
-    # 直接复制粘贴即可
-    # project Healthy_Life static resource
-    server {
-    	charset utf-8;
-        listen       9999;
-        server_name  localhost;
-	autoindex on;
-	add_header Cache-Control "no-cache, must-revalidate";
+## 环境配置
 
-        location / {
-	    root html;
-	    add_header Access-Control-Allow-Origin *;
-        }
+### 后端 `.env`
+
+```bash
+cp server/.env.example server/.env
+# 然后填写以下变量
+```
+
+| 变量 | 说明 | 示例 |
+|---|---|---|
+| `DB_NAME` | 数据库名 | `postgres` |
+| `DB_USER` | 数据库用户 | `postgres.your_ref` |
+| `DB_PASSWORD` | 数据库密码 | `your_password` |
+| `DB_HOST` | 数据库主机 | `aws-0-ap-southeast-1.pooler.supabase.com` |
+| `DB_PORT` | 数据库端口 | `5432` |
+| `JWT_SECRET` | JWT 签名密钥 | 任意随机字符串 |
+| `STATIC_UPLOAD_PATH` | 文件上传目录 | `E:/path/to/static` |
+| `STATIC_BASE_URL` | 静态文件访问地址 | `http://localhost:9999/project/HL/static/` |
+
+### Supabase 数据库
+
+1. 前往 [supabase.com](https://supabase.com) 创建项目
+2. 进入 **Settings → Database → Session pooler**，获取连接信息
+3. 填入 `server/.env` 对应字段
+4. 首次启动后端时 Sequelize 会自动建表（无需手动执行 SQL）
+
+---
+
+## 功能说明
+
+### 用户端（app/）
+
+| 页面 | 功能 |
+|---|---|
+| 主页 | 今日体重、**BMI / 体脂率自动计算**、卡路里进度环、步数/运动进度条、睡眠趋势折线图 |
+| 生活空间 | 综合健康评分（环形图）、周/月/年报告切换、体重/运动/睡眠/饮食卡片 |
+| 资讯 | 健康文章列表、关键词搜索 |
+| 个人中心 | 用户信息、健康指标（体重/身高/血压/心率）、设置菜单 |
+| 登录 / 注册 | 账号密码鉴权 |
+| 数据更新弹窗 | 记录今日体重、卡路里、步数、运动时长、睡眠时长 |
+| 编辑资料 | 修改用户名、密码、性别、年龄、身高体重等个人信息 |
+
+### 管理中台（admin/）
+
+访问 `http://localhost:5173`，需先注册管理员账号：
+
+```bash
+POST http://localhost:2233/admin/user/register
+Body: { "account": "admin", "password": "your_password" }
+```
+
+| 页面 | 功能 |
+|---|---|
+| 数据概览 | 注册用户数、健康文章数、健康记录数 |
+| 用户管理 | 用户列表（搜索/分页/删除） |
+| 文章管理 | 文章列表（搜索/分页/新增/编辑/删除） |
+
+### 后端接口
+
+**公开接口**
+
+```
+POST /user/register            注册
+POST /user/login               登录
+GET  /article/all              获取所有文章
+GET  /article/title/:keyword   按标题搜索
+POST /admin/user/login         管理员登录
+```
+
+**用户接口（需 token）**
+
+```
+POST /user/update              更新用户信息
+GET  /data/find?uid=           获取今日健康数据
+GET  /data/add?uid=&...        添加今日健康数据
+GET  /plan/get?uid=            获取健康计划
+POST /plan/set                 设置健康计划
+```
+
+**管理员接口（需管理员 token）**
+
+```
+GET    /admin/manage/stats            数据统计
+GET    /admin/manage/users            用户列表（支持分页/搜索）
+DELETE /admin/manage/users/:uid       删除用户
+GET    /admin/manage/articles         文章列表（支持分页/搜索）
+POST   /admin/manage/articles         新增文章
+PUT    /admin/manage/articles/:aid    编辑文章
+DELETE /admin/manage/articles/:aid    删除文章
+```
+
+---
+
+## 开发调试
+
+### Mock 数据（无需后端）
+
+用户端在 **后端未启动** 时自动启用 Mock，无需任何额外配置：
+
+| 字段 | Mock 值 |
+|---|---|
+| 账号 | `18322223333` |
+| 用户名 | Mock 用户 |
+| 今日体重 | 65 kg |
+| 身高 / 年龄 / 性别 | 175 cm / 25 岁 / 男 |
+| 今日卡路里 | 1200 kcal |
+| 今日步数 | 6800 步 |
+| 健康计划 | 卡路里 2000 / 步数 10000 / 运动 40 min |
+
+> Mock 仅在 `NODE_ENV=development` 下生效，生产构建自动关闭。  
+> 若要使用真实账号，清除浏览器 LocalStorage 中的 `user_data` 键即可。
+
+### BMI / 体脂率算法
+
+- **BMI** = 体重(kg) ÷ 身高(m)²
+- **体脂率** = Deurenberg 公式：`1.2 × BMI + 0.23 × 年龄 - 10.8 × 性别系数 - 5.4`
+  - 性别系数：男 = 1，女 = 0
+
+---
+
+## 部署
+
+```bash
+# 构建用户端 → app/dist/build/h5-uni/
+cd app && npm run build:h5
+
+# 构建管理中台 → admin/dist/
+cd admin && npm run build
+
+# PM2 启动后端
+cd server && pnpm run prod
+```
+
+将两个 `dist/` 目录部署到 Nginx，后端反向代理至 `:2233`。
+
+### Nginx 静态资源参考配置
+
+```nginx
+server {
+    listen       9999;
+    server_name  localhost;
+    charset      utf-8;
+    autoindex    on;
+    add_header   Cache-Control "no-cache, must-revalidate";
+
+    location / {
+        root html;
+        add_header Access-Control-Allow-Origin *;
     }
 }
 ```
 
-## MySQL
-注意: 此为可选项。可以让后端服务的sequelize自动生成后再运行db_life.sql, 添加测试数据.  
-也可以自行创建db_life库, 在运行db_life.sql, 添加测试数据.
+---
 
+## 环境依赖
+
+| 依赖 | 要求 |
+|---|---|
+| Node.js | >= 18 |
+| pnpm | >= 8（server 使用） |
+| npm | >= 8（app / admin 使用） |
+| 数据库 | Supabase PostgreSQL（无需本地安装） |
