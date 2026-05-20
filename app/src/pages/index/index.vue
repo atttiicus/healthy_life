@@ -271,7 +271,7 @@ export default {
 
       const chart = this.$echarts.init(el)
       chart.setOption({
-        grid: { top: 8, bottom: 28, left: 52, right: 12 },
+        grid: { top: 8, bottom: 28, left: 8, right: 12, containLabel: true },
         xAxis: {
           type: 'category',
           data: xData,

@@ -14,6 +14,14 @@
 					"pathRewrite": {
 						"^/api" : ""
 					}
+				},
+				"/gnews":{
+					"target": "https://gnews.io/api/v4/",
+					"changeOrigin": true,
+					"secure": true,
+					"pathRewrite": {
+						"^/gnews" : ""
+					}
 				}
 			}
 		}

@@ -93,6 +93,46 @@ const WRITE_ROUTES = [
   { test: url => url.includes('/user/update'), handle: () => ok({ update_number: 1 }) },
   { test: url => url.includes('/user/login'),  handle: () => ok(MOCK_USER)       },
   { test: url => url.includes('/user/register'), handle: () => ok(MOCK_USER)     },
+  {
+    test: url => url.includes('/gnews/top-headlines') || url.includes('gnews.io'),
+    handle: () => ({
+      data: {
+        status: 'ok',
+        totalResults: MOCK_ARTICLES.length,
+        articles: MOCK_ARTICLES.map(a => ({
+          title:       a.title,
+          description: a.content.slice(0, 80) + '...',
+          url:         'https://jiankang.cctv.com/',
+          urlToImage:  null,
+          author:      a.author,
+          publishedAt: a.updated_at,
+          source:      { name: a.author },
+        })),
+      },
+    }),
+  },
+  {
+    test: url => url.includes('/gnews/search'),
+    handle: url => {
+      const q = decodeURIComponent((url.split('q=')[1] || '').split('&')[0])
+      const filtered = MOCK_ARTICLES.filter(a => a.title.includes(q))
+      return {
+        data: {
+          status: 'ok',
+          totalResults: filtered.length,
+          articles: filtered.map(a => ({
+            title:       a.title,
+            description: a.content.slice(0, 80) + '...',
+            url:         'https://jiankang.cctv.com/',
+            urlToImage:  null,
+            author:      a.author,
+            publishedAt: a.updated_at,
+            source:      { name: a.author },
+          })),
+        },
+      }
+    },
+  },
 ]
 
 function installInterceptor() {

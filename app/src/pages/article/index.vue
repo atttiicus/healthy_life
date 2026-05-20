@@ -8,9 +8,9 @@
         <text class="text-[#9ca3af]">🔍</text>
         <input
           class="flex-1 text-sm text-[#374151] bg-transparent"
-          :value="inputKey === '请输入相关文章关键字' ? '' : inputKey"
+          :value="inputKey"
           @input="onInputKey"
-          placeholder="搜索文章关键词"
+          placeholder="搜索健康资讯关键词"
           placeholder-style="color:#9ca3af"
         />
       </view>
@@ -20,15 +20,44 @@
     </view>
 
     <!-- 返回全部 -->
-    <view v-if="!isShow" class="px-4 pt-3">
+    <view v-if="isSearchMode" class="px-4 pt-3">
       <view class="bg-[#ecfdf5] rounded-xl px-4 py-2 inline-flex items-center gap-1"
             @tap.stop="showAllArticles">
-        <text class="text-[#059669] text-sm">← 显示全部文章</text>
+        <text class="text-[#059669] text-sm">← 显示全部</text>
+      </view>
+    </view>
+
+    <!-- 加载中：骨架屏 -->
+    <view v-if="loading" class="p-4 flex flex-col gap-3">
+      <view v-for="i in 4" :key="i" class="card overflow-hidden">
+        <view class="bg-[#f3f4f6]" style="height:140px"></view>
+        <view class="p-4 flex flex-col gap-2">
+          <view class="bg-[#f3f4f6] rounded-full" style="height:14px;width:85%"></view>
+          <view class="bg-[#f3f4f6] rounded-full" style="height:12px;width:60%"></view>
+          <view class="flex justify-between mt-1">
+            <view class="bg-[#f3f4f6] rounded-full" style="height:10px;width:30%"></view>
+            <view class="bg-[#f3f4f6] rounded-full" style="height:10px;width:20%"></view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 加载失败 -->
+    <view v-else-if="hasError" class="flex flex-col items-center justify-center px-8 py-20">
+      <view class="w-16 h-16 rounded-2xl bg-[#fff7ed] flex items-center justify-center mb-4">
+        <text style="font-size:32px">📡</text>
+      </view>
+      <text class="text-base font-semibold text-[#374151] mb-2">加载失败</text>
+      <text class="text-sm text-[#9ca3af] text-center leading-relaxed mb-6">
+        网络连接异常，请检查网络设置后重试
+      </text>
+      <view class="px-8 py-3 bg-[#10b981] rounded-xl" @tap="loadArticles">
+        <text class="text-white text-sm font-medium">重新加载</text>
       </view>
     </view>
 
     <!-- 文章列表 -->
-    <scroll-view scroll-y="true" lower-threshold="50" @scrolltolower="onScrollToLower"
+    <scroll-view v-else scroll-y="true" lower-threshold="50" @scrolltolower="onScrollToLower"
                  style="height:calc(100vh - 56px)">
       <view class="p-4 flex flex-col gap-3 pb-20">
         <view
@@ -38,10 +67,17 @@
           @tap.stop="enterArticle(item.content, item.title)"
         >
           <image
-            :src="img_url_prefix + item.image"
+            v-if="item.image"
+            :src="img_prefix + item.image"
             style="width:100%;height:160px;display:block;object-fit:cover"
             mode="aspectFill"
           />
+          <view v-else
+                class="flex items-center justify-center bg-[#f0fdf4]"
+                style="height:100px">
+            <text style="font-size:32px">📰</text>
+          </view>
+
           <view class="p-4">
             <text class="text-base font-semibold text-[#1f2937] leading-snug block">
               {{ item.title }}
@@ -57,6 +93,7 @@
             </view>
           </view>
         </view>
+
         <view v-if="!articleList.length" class="text-center py-16">
           <text class="text-4xl block mb-3">📭</text>
           <text class="text-sm text-[#9ca3af]">暂无文章</text>
@@ -69,59 +106,105 @@
 
 <script>
 import { mapMutations, mapState } from 'vuex'
+
 export default {
   data() {
     return {
-      isShow: true,
-      img_url_prefix: 'http://192.168.8.102:9999/project/HL/static/',
-      articleList: [],
-      inputKey: '请输入相关文章关键字',
+      loading:      false,
+      hasError:     false,
+      isSearchMode: false,
+      articleList:  [],
+      allArticles:  [],
+      inputKey:     '',
+      img_prefix:   'http://localhost:2233/static/',
     }
   },
-  computed: { ...mapState(['articles']) },
+  computed: {
+    ...mapState(['articles']),
+  },
   onLoad() {
-    uni.request({
-      url: '/api/article/all', method: 'GET',
-      success: (res) => {
-        if (res.data.data) {
-          this.articleList = res.data.data.result
-          this.setArticles(res.data.data.result)
-        }
-      },
-    })
+    this.loadArticles()
   },
   methods: {
     ...mapMutations(['setArticles']),
-    onInputKey(e) { this.inputKey = e.detail.value },
-    formatDate(d) { return d ? d.slice(0, 10) : '' },
-    enterArticle(contUrl, contTitle) {
-      uni.navigateTo({
-        url: `/pages/article/content?contUrl=${contUrl}&title=${contTitle}`,
-        fail: () => uni.showToast({ title: '参数异常', icon: 'error' }),
+
+    loadArticles() {
+      this.loading  = true
+      this.hasError = false
+      uni.request({
+        url: '/api/article/all',
+        method: 'GET',
+        success: (res) => {
+          if (res.data && res.data.data) {
+            const list = res.data.data.result
+            this.allArticles = list
+            this.articleList = list
+            this.setArticles(list)
+          } else {
+            this.hasError = true
+          }
+        },
+        fail: () => {
+          this.hasError = true
+        },
+        complete: () => {
+          this.loading = false
+        },
       })
     },
+
+    onInputKey(e) {
+      this.inputKey = e.detail.value
+    },
+
     searchArticle() {
-      const key = String(this.inputKey)
+      const key = String(this.inputKey).trim()
       if (!key || /^\d+$/.test(key)) {
-        uni.showToast({ title: '请输入合法关键字', icon: 'error' }); return
+        uni.showToast({ title: '请输入合法关键词', icon: 'error' })
+        return
       }
+      this.loading = true
       uni.request({
-        url: `/api/article/title/${key}`, method: 'GET',
+        url: `/api/article/title/${key}`,
+        method: 'GET',
         success: (res) => {
           const list = res.data?.data?.result
-          if (list?.length) {
-            this.articleList = list
-            this.isShow = false
+          if (list && list.length) {
+            this.articleList  = list
+            this.isSearchMode = true
             uni.showToast({ title: '检索成功', icon: 'success' })
           } else {
             uni.showToast({ title: '无相关文章', icon: 'error' })
           }
         },
+        fail: () => {
+          uni.showToast({ title: '搜索失败', icon: 'none' })
+        },
+        complete: () => {
+          this.loading = false
+        },
       })
     },
+
     showAllArticles() {
-      if (this.articles) { this.isShow = true; this.articleList = this.articles }
+      this.isSearchMode = false
+      this.inputKey     = ''
+      this.articleList  = this.allArticles
     },
+
+    enterArticle(contUrl, contTitle) {
+      if (!contUrl) return
+      uni.navigateTo({
+        url: `/pages/article/content?contUrl=${encodeURIComponent(contUrl)}&title=${encodeURIComponent(contTitle)}`,
+        fail: () => uni.showToast({ title: '跳转失败', icon: 'error' }),
+      })
+    },
+
+    formatDate(d) {
+      if (!d) return ''
+      return d.slice(0, 10)
+    },
+
     onScrollToLower() {},
   },
 }

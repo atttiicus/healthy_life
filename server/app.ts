@@ -1,6 +1,7 @@
 import 'dotenv/config'
 import http from "http"
 import Koa from "koa"
+import koaStatic from 'koa-static'
 import { loggerMiddleware } from './log/log'
 import koaBody from 'koa-body'
 import { errorHandler, responseHandler } from './middleware/response'
@@ -15,6 +16,13 @@ const uploadDir = NGINX_STATIC_PATH.uploadPath;
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
+
+// 静态文件服务：上传的图片直接通过后端返回，访问路径 /static/<filename>
+app.use(async (ctx, next) => {
+  if (!ctx.path.startsWith('/static/')) return next()
+  ctx.path = ctx.path.slice('/static'.length)
+  return koaStatic(uploadDir)(ctx, next)
+})
 
 app.use(loggerMiddleware)
 app.use(errorHandler)

@@ -12,8 +12,8 @@ export default {
     }
   },
   onLoad(query) {
-    this.textUrl = query.contUrl
-    uni.setNavigationBarTitle({ title: query.title || '健康文章' })
+    this.textUrl = decodeURIComponent(query.contUrl || '')
+    uni.setNavigationBarTitle({ title: decodeURIComponent(query.title || '健康文章') })
   },
 }
 </script>
