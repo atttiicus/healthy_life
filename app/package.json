@@ -77,6 +77,8 @@
     "vuex": "^3.2.0"
   },
   "devDependencies": {
+    "@unocss/postcss": "^0.61.0",
+    "unocss": "^0.61.0",
     "@dcloudio/types": "^3.3.2",
     "@dcloudio/uni-automator": "^2.0.2-3090920231225001",
     "@dcloudio/uni-cli-i18n": "^2.0.2-3090920231225001",
@@ -101,6 +103,16 @@
     "Android >= 4.4",
     "ios >= 9"
   ],
+  "overrides": {
+    "@dcloudio/vue-cli-plugin-uni": {
+      "webpack": "^5.88.2"
+    }
+  },
+  "pnpm": {
+    "overrides": {
+      "@dcloudio/vue-cli-plugin-uni>webpack": "^5.88.2"
+    }
+  },
   "uni-app": {
     "scripts": {}
   }

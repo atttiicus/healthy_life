@@ -37,22 +37,13 @@ export default {
 
 <style>
 :root {
-    --main-color: #00b09a;
-    --sub-color-1: #36d8c1;
-    --sub-color-2: #218476;
-    --coo-color-1: #114fb8;
-    --coo-color-2: #26dc00;
-    --reve-color: #ff6a00;
+  --primary: #10b981;
+  --primary-dark: #059669;
+  --bg-page: #f5f7fa;
 }
-.content *,
-.content *:after,
-.content *:before {
-    box-sizing: border-box;
+page {
+  background-color: #f5f7fa;
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', sans-serif;
 }
-body {
-    background-color: #ffffff;
-}
-.content {
-    width: 100%;
-}
+* { box-sizing: border-box; }
 </style>

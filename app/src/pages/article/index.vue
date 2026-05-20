@@ -1,163 +1,130 @@
 <template>
-    <view class="content" >
-        <view class="search-cont">
-            <input class="search-input" @input='onInputKey' type="input" placeholder="请输入相关文章关键字"></input>
-            <view class="search-btn" size="mini" @tap.stop='searchArticle'>
-                <span class="iconfont icon-fangdajing"></span>
-            </view>
-        </view>
-        <view class="tips-cont">
-            <view v-show='isShow' class="tips-item">
-                <view class="title">专业咨询</view>
-                <view class="iconfont icon-baike"></view>
-            </view>
-            <view v-show='isShow' class="tips-item">
-                <view class="title">智能建议</view>
-                <view class="iconfont icon-rengongzhinengdanao"></view>
-            </view>
-            <div v-show='!isShow' class='tips-item return' @tap.stop='showAllArticles'>
-                显示全部文章
-            </div>
-        </view>
-        <view class="article-list">
-            <scroll-view
-              lower-threshold='0'
-              class="scroll-view"
-              scroll-y="true"
-              @scrolltolower="onScrollToLower"
-            >
-                <view v-for="(item, index) in articleList" :key="item.aid">
-                    <view class="article-item" @tap.stop='enterArticle(item.content, item.title)'>
-                        <view class="article-image">
-                            <img :src="img_url_prefix + item.image" :alt="'图片_'+item.title">
-                        </view>
-                        <view class="article-title">{{item.title}}</view>
-                        <view class="article-cont">
-                            <p class="tags">{{item.tags}}</p>
-                            <p class="author">{{item.author}}</p>
-                            <p class="time">{{item.updated_at}}</p>
-                        </view>
-                    </view>
-                </view>
-            </scroll-view>
-        </view>
+  <view class="page">
+
+    <!-- 搜索栏 -->
+    <view class="bg-white px-4 py-3 flex items-center gap-3"
+          style="box-shadow:0 1px 4px rgba(0,0,0,.04)">
+      <view class="flex-1 flex items-center gap-2 bg-[#f3f4f6] rounded-xl px-3 py-2">
+        <text class="text-[#9ca3af]">🔍</text>
+        <input
+          class="flex-1 text-sm text-[#374151] bg-transparent"
+          :value="inputKey === '请输入相关文章关键字' ? '' : inputKey"
+          @input="onInputKey"
+          placeholder="搜索文章关键词"
+          placeholder-style="color:#9ca3af"
+        />
+      </view>
+      <view class="bg-[#10b981] rounded-xl px-4 py-2" @tap.stop="searchArticle">
+        <text class="text-white text-sm font-medium">搜索</text>
+      </view>
     </view>
+
+    <!-- 返回全部 -->
+    <view v-if="!isShow" class="px-4 pt-3">
+      <view class="bg-[#ecfdf5] rounded-xl px-4 py-2 inline-flex items-center gap-1"
+            @tap.stop="showAllArticles">
+        <text class="text-[#059669] text-sm">← 显示全部文章</text>
+      </view>
+    </view>
+
+    <!-- 文章列表 -->
+    <scroll-view scroll-y="true" lower-threshold="50" @scrolltolower="onScrollToLower"
+                 style="height:calc(100vh - 56px)">
+      <view class="p-4 flex flex-col gap-3 pb-20">
+        <view
+          v-for="item in articleList" :key="item.aid"
+          class="card overflow-hidden"
+          style="box-shadow:0 2px 8px rgba(0,0,0,.05)"
+          @tap.stop="enterArticle(item.content, item.title)"
+        >
+          <image
+            :src="img_url_prefix + item.image"
+            style="width:100%;height:160px;display:block;object-fit:cover"
+            mode="aspectFill"
+          />
+          <view class="p-4">
+            <text class="text-base font-semibold text-[#1f2937] leading-snug block">
+              {{ item.title }}
+            </text>
+            <view class="flex items-center justify-between mt-2">
+              <view class="flex items-center gap-2">
+                <view class="tag-green">
+                  <text class="text-xs text-[#059669]">健康</text>
+                </view>
+                <text class="text-xs text-[#9ca3af]">{{ item.author }}</text>
+              </view>
+              <text class="text-xs text-[#9ca3af]">{{ formatDate(item.updated_at) }}</text>
+            </view>
+          </view>
+        </view>
+        <view v-if="!articleList.length" class="text-center py-16">
+          <text class="text-4xl block mb-3">📭</text>
+          <text class="text-sm text-[#9ca3af]">暂无文章</text>
+        </view>
+      </view>
+    </scroll-view>
+
+  </view>
 </template>
 
 <script>
 import { mapMutations, mapState } from 'vuex'
-import { article } from '@dcloudio/vue-cli-plugin-uni/packages/postcss/tags'
 export default {
-    data() {
-        return {
-            isShow: true,
-            img_url_prefix: "http://192.168.8.102:9999/project/HL/static/",
-            articleList: [],
-            inputKey : "请输入相关文章关键字",
-        }
-    },
-    computed: {
-        ...mapState(['articles'])
-    },
-    onLoad() {
-        uni.request({
-            url: "/api/article/all",
-            method: "GET",
-            success: (res) => {
-                if(res.data.data) {
-                    this.articleList = res.data.data.result
-                    this.setArticles(res.data.data.result)
-                }
-            }
-        })
-    },
-    methods: {
-        ...mapMutations(["setArticles"]),
-        // HACK 处理 uniApp 数据双向绑定BUG
-        onInputKey(event){
-            this.inputKey = event.detail.value
-        },
-        /**
-         * 携带参数进入文章内容页面
-         * @param {string} contUrl 文章url
-         * */
-        enterArticle(contUrl, contTitle) {
-            uni.navigateTo({
-                url:`/pages/article/content?contUrl=${contUrl}&title=${contTitle}`,
-                success:() => {
-                    console.log("链接跳转成功, 正在前往")
-                },
-                fail:() => {
-                  uni.showToast({
-                      title:"参数异常", icon:"error"
-                  })
-                }
-            })
-        },
-        /**
-         * 搜索文章函数, 需要先检查用户输入的关键字是否合法,
-         * 搜索成功, 会将页面当前展示的文章替换掉, 搜索失败时则返回错误信息
-         * */
-        searchArticle(){
-            if (!this.detectionInputKey(String(this.inputKey))) {
-                uni.showToast({
-                    title:"抱歉, 请输入合法的关键字",
-                    icon:"error"
-                })
-                return
-            }
-            uni.request({
-                url: `/api/article/title/${this.inputKey}`,
-                method: "GET",
-                success: (res) => {
-                    if (res.data.data.result.length) {
-                        uni.showToast({
-                            title:"检索成功",
-                            icon:"success"
-                        })
-                        this.articleList = res.data.data.result
-                        this.isShow = !this.isShow
-                    } else {
-                        uni.showToast({
-                            title:" 失败, 无相关文章 ",
-                            icon:"error"
-                        })
-                    }
-
-                }
-            })
-
-        },
-        /**
-         * 检查用户输入的文章关键字是否合法
-         * 主要检查 字符是否为空 字符是否为全数字
-         * @param {string} key 关键字
-         * @return {boolean} 返回检查合法性
-         * */
-        detectionInputKey(key){
-            if (!key) return false
-            if (/^\d+$/.test(key)) return false
-            return true
-        },
-        /**
-         * 展示所有文章函数
-         * */
-        showAllArticles(){
-            if(this.articles) {
-                this.isShow = !this.isShow
-                this.articleList = this.articles
-            }
-        },
-        /**
-         * 上拉刷新文章数据
-         * */
-        onScrollToLower() {
-            // TODO 上拉请求数据
-        }
+  data() {
+    return {
+      isShow: true,
+      img_url_prefix: 'http://192.168.8.102:9999/project/HL/static/',
+      articleList: [],
+      inputKey: '请输入相关文章关键字',
     }
+  },
+  computed: { ...mapState(['articles']) },
+  onLoad() {
+    uni.request({
+      url: '/api/article/all', method: 'GET',
+      success: (res) => {
+        if (res.data.data) {
+          this.articleList = res.data.data.result
+          this.setArticles(res.data.data.result)
+        }
+      },
+    })
+  },
+  methods: {
+    ...mapMutations(['setArticles']),
+    onInputKey(e) { this.inputKey = e.detail.value },
+    formatDate(d) { return d ? d.slice(0, 10) : '' },
+    enterArticle(contUrl, contTitle) {
+      uni.navigateTo({
+        url: `/pages/article/content?contUrl=${contUrl}&title=${contTitle}`,
+        fail: () => uni.showToast({ title: '参数异常', icon: 'error' }),
+      })
+    },
+    searchArticle() {
+      const key = String(this.inputKey)
+      if (!key || /^\d+$/.test(key)) {
+        uni.showToast({ title: '请输入合法关键字', icon: 'error' }); return
+      }
+      uni.request({
+        url: `/api/article/title/${key}`, method: 'GET',
+        success: (res) => {
+          const list = res.data?.data?.result
+          if (list?.length) {
+            this.articleList = list
+            this.isShow = false
+            uni.showToast({ title: '检索成功', icon: 'success' })
+          } else {
+            uni.showToast({ title: '无相关文章', icon: 'error' })
+          }
+        },
+      })
+    },
+    showAllArticles() {
+      if (this.articles) { this.isShow = true; this.articleList = this.articles }
+    },
+    onScrollToLower() {},
+  },
 }
 </script>
 
-<style scoped>
-@import "./style/index.scss";
-</style>
+<style scoped></style>

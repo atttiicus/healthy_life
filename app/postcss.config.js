@@ -3,6 +3,7 @@ const webpack = require('webpack')
 const config = {
   parser: require('postcss-comment'),
   plugins: [
+    require('@unocss/postcss')(),
     require('postcss-import')({
       resolve (id, basedir, importOptions) {
         if (id.startsWith('~@/')) {
