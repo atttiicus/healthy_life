@@ -31,6 +31,9 @@ request.interceptors.response.use(
 export const adminLogin = (data: { account: string; password: string }) =>
   request.post('/admin/user/login', data)
 
+export const adminRegister = (data: { account: string; password: string }) =>
+  request.post('/admin/user/register', data)
+
 export const getStats = () => request.get('/admin/manage/stats')
 
 export const getUserList = (params: { page: number; limit: number; keyword?: string }) =>
