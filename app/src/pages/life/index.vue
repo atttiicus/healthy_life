@@ -102,11 +102,9 @@
           最近{{ activeTab }}体重报告
         </text>
         <text class="text-sm text-[#6b7280] block mb-2">单项评分</text>
-        <van-progress :percentage="87" pivot-text="87" stroke-width="8" color="#10b981" />
+        <van-progress :percentage="targetRate" :pivot-text="targetRate + '分'" stroke-width="8" color="#10b981" />
         <view class="mt-4 rounded-xl p-4 bg-[#f9fafb]">
-          <text class="text-sm text-[#374151] leading-relaxed">
-            本周体重整体呈下降趋势，健康状况良好，请继续保持当前的饮食习惯和运动计划。
-          </text>
+          <text class="text-sm text-[#374151] leading-relaxed">{{ reportSummary }}</text>
         </view>
       </view>
     </van-popup>
@@ -159,14 +157,63 @@ export default {
     return {
       isShowDia: false,
       currentRate: 0,
-      targetRate: 76,
       activeTab: '周报',
       tabs: ['周报', '月报', '年报'],
       _chart: null,
     }
   },
   computed: {
+    ...require('vuex').mapState(['currentData', 'userPlanData', 'user']),
+
+    // 综合健康评分（满分 100）
+    targetRate() {
+      if (JSON.stringify(this.currentData) === '{}') return 0
+      let score = 0
+      // BMI 正常 +25
+      const w = Number(this.currentData.weight) || Number(this.user.weight)
+      const h = Number(this.user.height)
+      if (w && h) {
+        const bmi = w / Math.pow(h / 100, 2)
+        if (bmi >= 18.5 && bmi < 25) score += 25
+        else if (bmi >= 25 && bmi < 30) score += 12
+        else score += 5
+      } else { score += 15 }
+
+      // 卡路里在目标 80~110% +20
+      const calPct = this.userPlanData.calorie
+        ? (Number(this.currentData.calorie) || 0) / Number(this.userPlanData.calorie) * 100
+        : 80
+      if (calPct >= 80 && calPct <= 110) score += 20
+      else if (calPct > 110) score += 8
+      else score += 12
+
+      // 步数达成率 +20
+      const stepPct = this.userPlanData.kilometre
+        ? (Number(this.currentData.stepNum) || 0) / Number(this.userPlanData.kilometre) * 100
+        : 50
+      score += Math.round(Math.min(stepPct, 100) / 100 * 20)
+
+      // 运动时长达成率 +20
+      const exPct = this.userPlanData.exerciseTime
+        ? (Number(this.currentData.exerciseTime) || 0) / Number(this.userPlanData.exerciseTime) * 100
+        : 50
+      score += Math.round(Math.min(exPct, 100) / 100 * 20)
+
+      // 睡眠时长 6~9h +15
+      const sleep = this.currentData.sleepTime
+      if (sleep) {
+        const [hh, mm] = sleep.split(':').map(Number)
+        const mins = hh * 60 + (mm || 0)
+        if (mins >= 360 && mins <= 540) score += 15
+        else if (mins >= 300) score += 8
+        else score += 3
+      } else { score += 10 }
+
+      return Math.min(100, score)
+    },
+
     text() { return this.currentRate.toFixed(0) },
+
     scoreLabel() {
       const s = this.targetRate
       if (s >= 90) return '优秀'
@@ -174,21 +221,99 @@ export default {
       if (s >= 60) return '中等'
       return '较差'
     },
+
     scoreDesc() {
       const s = this.targetRate
       if (s >= 90) return '健康状况非常好，请继续保持！'
-      if (s >= 75) return '评分良好，主要改善睡眠问题，建议晚上11点前入睡。'
-      if (s >= 60) return '评分中等，主要改善体重与睡眠问题，建议饭后多运动，晚上11点前入睡。'
-      return '健康状况需要关注，请合理安排饮食与运动。'
+      if (s >= 75) return '评分良好，主要注意保持充足睡眠与规律运动。'
+      if (s >= 60) return '评分中等，建议注意体重管理、饭后多运动，晚上11点前入睡。'
+      return '健康状况需要关注，请合理安排饮食、增加运动，注意休息。'
     },
+
+    // 健康数据卡片（基于真实数据计算进度）
     healthItems() {
-      const tab = this.activeTab
+      const cd = this.currentData
+      const pd = this.userPlanData
+
+      // 体重：当前 vs 目标
+      const curW  = Number(cd.weight) || null
+      const planW = Number(pd.weight) || null
+      const wDiff = curW && planW ? (curW - planW).toFixed(1) : null
+      const wGood = wDiff !== null && Number(wDiff) <= 0
+
+      // 运动：达成率
+      const exCur  = Number(cd.exerciseTime) || 0
+      const exPlan = Number(pd.exerciseTime) || 40
+      const exPct  = Math.round(exCur / exPlan * 100)
+
+      // 睡眠：与目标时长比较
+      const sleepCur  = cd.sleepTime  || null
+      const sleepPlan = pd.sleepTime  || '07:30'
+      let sleepDiff = null, sleepGood = true
+      if (sleepCur && sleepPlan) {
+        const toMin = t => { const [h, m] = t.split(':').map(Number); return h * 60 + (m || 0) }
+        sleepDiff = toMin(sleepCur) - toMin(sleepPlan)
+        sleepGood = sleepDiff >= -30 // 不低于目标 30 分钟内算良好
+      }
+
+      // 卡路里
+      const calCur  = Number(cd.calorie) || 0
+      const calPlan = Number(pd.calorie) || 2000
+      const calPct  = Math.round(calCur / calPlan * 100)
+      const calGood = calPct >= 80 && calPct <= 110
+
       return [
-        { title: '体重变化', icon: '⚖️', direction: '↓ 下降', value: '1.1 KG',  tip: '需要再接再厉', trend: 'good', onTap: () => this.showDataReport() },
-        { title: '运动锻炼', icon: '🏋️', direction: '↑ 增长', value: '22 min',  tip: '运动后记得放松', trend: 'good', onTap: () => this.showDataReport() },
-        { title: '睡眠质量', icon: '😴', direction: tab === '年报' ? '↑ 改善' : '↓ 减少', value: tab === '年报' ? '8 min' : '11 min', tip: '注意改善睡眠', trend: tab === '年报' ? 'good' : 'bad' },
-        { title: '饮食健康', icon: '🥗', direction: '↑ 增加', value: tab === '年报' ? '150 kcal' : '200 kcal', tip: '合理增加饮食', trend: 'good' },
+        {
+          title: '体重管理', icon: '⚖️',
+          direction: wDiff !== null ? (Number(wDiff) <= 0 ? '↓ 低于目标' : `↑ 超出 ${wDiff}kg`) : '暂无数据',
+          value: curW ? `${curW} kg` : '—',
+          tip: planW ? `目标 ${planW} kg` : '尚未设定目标',
+          trend: wGood ? 'good' : 'bad',
+          onTap: () => this.showDataReport(),
+        },
+        {
+          title: '运动锻炼', icon: '🏋️',
+          direction: exPct >= 100 ? '✓ 已达标' : `达成 ${exPct}%`,
+          value: `${exCur} min`,
+          tip: `目标 ${exPlan} min`,
+          trend: exPct >= 80 ? 'good' : 'bad',
+          onTap: () => this.showDataReport(),
+        },
+        {
+          title: '睡眠质量', icon: '😴',
+          direction: sleepDiff !== null
+            ? (sleepGood ? '✓ 睡眠达标' : `少 ${Math.abs(sleepDiff)} 分钟`)
+            : '暂无数据',
+          value: sleepCur || '—',
+          tip: `目标 ${sleepPlan}`,
+          trend: sleepGood ? 'good' : 'bad',
+        },
+        {
+          title: '热量摄入', icon: '🥗',
+          direction: calGood ? '✓ 摄入适中' : (calPct > 110 ? '⚠ 摄入超标' : '⚠ 摄入不足'),
+          value: `${calCur} kcal`,
+          tip: `目标 ${calPlan} kcal`,
+          trend: calGood ? 'good' : 'bad',
+        },
       ]
+    },
+
+    // 报告弹窗：综合进度汇总
+    reportSummary() {
+      const cd = this.currentData
+      const pd = this.userPlanData
+      const lines = []
+      if (cd.weight && pd.weight)
+        lines.push(`体重 ${cd.weight}kg（目标 ${pd.weight}kg）`)
+      if (cd.exerciseTime && pd.exerciseTime)
+        lines.push(`运动 ${cd.exerciseTime}min（目标 ${pd.exerciseTime}min）`)
+      if (cd.sleepTime)
+        lines.push(`睡眠 ${cd.sleepTime}（目标 ${pd.sleepTime || '07:30'}）`)
+      if (cd.calorie && pd.calorie)
+        lines.push(`热量 ${cd.calorie}kcal（目标 ${pd.calorie}kcal）`)
+      return lines.length
+        ? lines.join('，') + '。'
+        : '暂无今日健康数据，请先记录数据再查看报告。'
     },
   },
   mounted() {

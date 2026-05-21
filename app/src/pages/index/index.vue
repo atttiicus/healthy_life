@@ -128,11 +128,26 @@
         </view>
       </view>
 
+      <!-- 健康建议 -->
+      <view v-if="healthAdvice.length" class="card p-4">
+        <text class="sec-title mb-3 block">💡 健康建议</text>
+        <view class="flex flex-col gap-2">
+          <view v-for="tip in healthAdvice" :key="tip.text"
+                class="flex items-start gap-2 rounded-xl px-3 py-2"
+                :style="{ background: tip.bg }">
+            <text>{{ tip.icon }}</text>
+            <text class="text-xs leading-relaxed flex-1" :style="{ color: tip.color }">
+              {{ tip.text }}
+            </text>
+          </view>
+        </view>
+      </view>
+
       <!-- 睡眠 -->
       <view class="card p-4">
         <view class="flex items-center justify-between mb-3">
           <text class="sec-title">睡眠质量趋势</text>
-          <text class="text-xs text-[#9ca3af]">近 5 日</text>
+          <text class="text-xs text-[#9ca3af]">近 7 日</text>
         </view>
         <view id="sheepEcharts" style="width:100%;height:200px"></view>
       </view>
@@ -158,6 +173,7 @@ export default {
     return {
       isShowCommonDialog: false,
       currentTime: '',
+      historyData: [],   // 最近 7 天历史数据
     }
   },
   computed: {
@@ -229,9 +245,48 @@ export default {
       }
       return { value: v, label }
     },
+
+    // 个性化健康建议
+    healthAdvice() {
+      const tips = []
+      const calPct  = parseInt(this.caloriePercent) || 0
+      const stepPct = parseInt(this.stepWidthPct)   || 0
+      const exPct   = parseInt(this.exerciseWidthPct) || 0
+      const bmiVal  = parseFloat(this.bmi.value)
+      const sleep   = this.currentData.sleepTime
+
+      if (calPct > 110)
+        tips.push({ icon: '⚠️', text: '今日卡路里摄入已超标，建议减少高热量食物，适当增加有氧运动。', bg: '#fff7ed', color: '#ea580c' })
+      else if (calPct < 50 && calPct > 0)
+        tips.push({ icon: '⚡', text: '今日卡路里摄入不足，营养摄入过少不利于健康，请注意合理饮食。', bg: '#fef9c3', color: '#ca8a04' })
+      else if (calPct >= 80 && calPct <= 110)
+        tips.push({ icon: '✅', text: '卡路里摄入处于合理范围，继续保持均衡饮食。', bg: '#f0fdf4', color: '#16a34a' })
+
+      if (stepPct < 60 && this.userPlanData.kilometre)
+        tips.push({ icon: '🏃', text: `今日步数还差 ${Math.max(0, Number(this.userPlanData.kilometre) - (Number(this.currentData.stepNum) || 0))} 步，饭后散步是个好习惯。`, bg: '#fff7ed', color: '#ea580c' })
+
+      if (exPct < 50 && this.userPlanData.exerciseTime)
+        tips.push({ icon: '⏱', text: '今日运动时间不足目标的一半，适量运动有助于改善新陈代谢。', bg: '#fef9c3', color: '#ca8a04' })
+
+      if (!isNaN(bmiVal) && bmiVal >= 25)
+        tips.push({ icon: '⚖️', text: 'BMI 偏高，建议控制饮食总热量并坚持每天运动 30 分钟以上。', bg: '#fef9c3', color: '#ca8a04' })
+      else if (!isNaN(bmiVal) && bmiVal < 18.5)
+        tips.push({ icon: '🥗', text: 'BMI 偏低，建议适当增加优质蛋白质摄入，如鸡蛋、牛奶、鱼肉等。', bg: '#fef9c3', color: '#ca8a04' })
+
+      if (sleep) {
+        const [h, m] = sleep.split(':').map(Number)
+        const mins = h * 60 + (m || 0)
+        if (mins < 360)
+          tips.push({ icon: '😴', text: '昨夜睡眠不足 6 小时，建议今晚 22:30 前入睡，保证充足休息。', bg: '#f5f3ff', color: '#7c3aed' })
+        else if (mins >= 420 && mins <= 540)
+          tips.push({ icon: '🌙', text: '睡眠时长良好，保持规律作息有助于身心健康。', bg: '#f0fdf4', color: '#16a34a' })
+      }
+
+      return tips.slice(0, 3)
+    },
   },
   mounted() {
-    this.initSheepEchartsTable()
+    this.fetchHistoryAndRender()
   },
   onLoad() {
     if (JSON.stringify(this.currentData) === '{}' && this.user.uid) {
@@ -252,21 +307,42 @@ export default {
     ...mapMutations(['setCurrentData']),
     popUpdateDayDataDialog() { this.isShowCommonDialog = true },
     UpdateDialogDayDataState(v) { this.isShowCommonDialog = v },
-    initSheepEchartsTable() {
+
+    // 拉取最近 7 天历史数据并渲染图表
+    fetchHistoryAndRender() {
+      if (!this.user.uid) { this.initSheepEchartsTable([]); return }
+      uni.request({
+        url: `/api/data/history?uid=${this.user.uid}&days=7`,
+        method: 'GET',
+        header: { token: this.user.token },
+        success: (res) => {
+          const list = res.data?.data || []
+          this.historyData = list
+          this.initSheepEchartsTable(list)
+        },
+        fail: () => { this.initSheepEchartsTable([]) },
+      })
+    },
+
+    initSheepEchartsTable(historyList) {
       const el = document.getElementById('sheepEcharts')
       if (!el) return
 
-      // 生成最近 7 天的日期标签和 mock 睡眠时长
-      const mockTimes = ['07:15', '06:30', '07:10', '06:50', '07:35', '06:55', '07:20']
-      const todaySleep = this.currentData.sleepTime || '07:20'
+      const BASE = '2024-01-01 '
+      const FALLBACK = ['07:15', '06:30', '07:10', '06:50', '07:35', '06:55', '07:20']
       const xData = []
       const yData = []
-      const BASE = '2024-01-01 '   // 固定日期前缀，仅取时间部分
 
       for (let i = 6; i >= 0; i--) {
         const d = dayjs().subtract(i, 'day')
         xData.push(d.format('MMDD'))
-        yData.push(BASE + (i === 0 ? todaySleep : mockTimes[6 - i]))
+        // 从历史数据里找当天的记录
+        const dateStr = d.format('YYYY-MM-DD')
+        const record = (historyList || []).find(r =>
+          r.created_at && r.created_at.startsWith(dateStr)
+        )
+        const sleep = record?.sleepTime || FALLBACK[6 - i]
+        yData.push(BASE + sleep)
       }
 
       const chart = this.$echarts.init(el)

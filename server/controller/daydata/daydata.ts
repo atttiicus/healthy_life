@@ -1,6 +1,6 @@
 import {Context, Next} from "koa";
 import {CODE} from "../../config/code";
-import { createDayDataService, getDayDataService, updateDayDataService } from '../../services/data/data'
+import { createDayDataService, getDayDataService, getDayDataHistoryService, updateDayDataService } from '../../services/data/data'
 
 /**
  * 添加一条每日数据, 需要传入用户的id, 和收集的数据
@@ -53,6 +53,15 @@ export const updateCurrentDayData = async (ctx: Context, next: Next) => {
     return next()
 }
 
-// TODO 获取最近七天的睡眠数据
+/**
+ * 获取用户最近 N 天的健康数据（用于趋势图）
+ */
+export const getDayDataHistory = async (ctx: Context, next: Next) => {
+  const { uid, days } = ctx.request.query
+  if (!uid) throw CODE.needMissingParameters
+  if (isNaN(Number(uid))) throw CODE.errorTypeParameters
 
-// TODO 获取昨日与今日的体重数据(计算后)
+  const list = await getDayDataHistoryService(Number(uid), Number(days) || 7)
+  ctx.body = list.map(r => r.dataValues)
+  return next()
+}

@@ -23,8 +23,9 @@ router.post(project.user + "/writeOff", controllers.user_user.removeUserApi)
 router.post(project.user + "/update", controllers.user_user.updateUserInfoApi)
 
 // 每日数据接口
-router.get(project.data+"/add", controllers.daydata_daydata.addDayData)
-router.get(project.data+"/find", controllers.daydata_daydata.getCurrentDayData)
+router.get(project.data+"/add",     controllers.daydata_daydata.addDayData)
+router.get(project.data+"/find",    controllers.daydata_daydata.getCurrentDayData)
+router.get(project.data+"/history", controllers.daydata_daydata.getDayDataHistory)
 
 // 健康计划表接口
 router.get(project.plan+"/get", controllers.plan_plan.getPlanDataApi)

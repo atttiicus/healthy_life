@@ -60,6 +60,22 @@ export const updateDayDataService = (did: string | string[], params: healthParam
 }
 
 /**
+ * 查询用户最近 N 天的健康数据（每天一条，按日期升序）
+ * @param uid {number} 用户id
+ * @param days {number} 天数，默认 7
+ * @return 日数据数组
+ */
+export const getDayDataHistoryService = (uid: number, days = 7) => {
+  const start = dayjs().subtract(days - 1, 'day').startOf('date').format('YYYY-MM-DD HH:mm:ss')
+  const end   = dayjs().endOf('date').format('YYYY-MM-DD HH:mm:ss')
+  return DayData.findAll({
+    where: { uid, is_del: 0, created_at: { [Op.between]: [start, end] } },
+    attributes: { exclude: ['is_del'] },
+    order: [['created_at', 'ASC']],
+  })
+}
+
+/**
  * 传入 did 删除对应日数据
  * @param did {number} 数据id
  * @return 数据库修改信息

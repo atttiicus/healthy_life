@@ -86,7 +86,24 @@ export const MOCK_ARTICLES = [
 
 const ok = data => ({ data: { code: 20000, data, message: 'SUCCESS' }, statusCode: 200 })
 
+// 生成最近7天的历史数据（mock）
+function genMockHistory() {
+  const sleeps  = ['07:15', '06:30', '07:10', '06:50', '07:35', '06:55', '07:20']
+  const steps   = [7200, 5400, 8100, 6300, 9200, 7800, 6800]
+  const calories= [1800, 2100, 1950, 2200, 1750, 2050, 1200]
+  return sleeps.map((s, i) => ({
+    ...MOCK_TODAY_DATA,
+    did: i + 1,
+    sleepTime:    s,
+    stepNum:      steps[i],
+    calorie:      calories[i],
+    created_at:   new Date(Date.now() - (6 - i) * 86400000).toISOString(),
+    updated_at:   new Date(Date.now() - (6 - i) * 86400000).toISOString(),
+  }))
+}
+
 const WRITE_ROUTES = [
+  { test: url => url.includes('/data/history'), handle: () => ok(genMockHistory()) },
   { test: url => url.includes('/data/add'),    handle: () => ok(MOCK_TODAY_DATA) },
   { test: url => url.includes('/data/update'), handle: () => ok(MOCK_TODAY_DATA) },
   { test: url => url.includes('/plan/set'),    handle: () => ok(MOCK_PLAN)       },

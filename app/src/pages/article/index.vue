@@ -18,7 +18,7 @@
         <text class="text-white text-sm font-medium">搜索</text>
       </view>
     </view>
-
+        
     <!-- 返回全部 -->
     <view v-if="isSearchMode" class="px-4 pt-3">
       <view class="bg-[#ecfdf5] rounded-xl px-4 py-2 inline-flex items-center gap-1"
