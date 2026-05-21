@@ -34,14 +34,6 @@ npm run build:h5      # H5 生产打包 → dist/build/h5-uni/
 | 登录 / 注册 | `pages/user/login` `register` | 账号密码鉴权 |
 | 编辑资料 | `pages/user/update` | 修改用户名、密码、身高体重等 |
 
-## Mock 数据
-
-后端未启动时自动启用 Mock，无需任何配置：
-
-- Mock 用户：`18322223333`，体重 65kg，身高 175cm
-- 健康计划目标、今日数据、文章列表均有预设值
-- Mock 仅在 `NODE_ENV=development` 生效，打包后自动关闭
-
 ## API 代理（H5 开发）
 
 `manifest.json` 中配置了两条代理：
@@ -57,7 +49,6 @@ src/
 ├── pages/          页面
 ├── components/     公共组件（数据更新弹窗等）
 ├── store/          Vuex 状态（user / currentData / userPlanData / articles）
-├── mock/           开发 Mock 数据与请求拦截
 ├── styles/         UnoCSS 入口（uno.css）
 ├── static/         静态资源（图片、图标）
 └── main.js         应用入口
