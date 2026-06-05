@@ -12,7 +12,6 @@ WorkoutRunDetail.init({
   wid: {
     type: DataTypes.INTEGER.UNSIGNED,
     allowNull: false,
-    unique: true,
     comment: '关联 workout.wid (1:1)'
   },
   distance: {
@@ -33,7 +32,8 @@ WorkoutRunDetail.init({
 }, {
   sequelize,
   modelName: 'workout_run_detail',
-  freezeTableName: true
+  freezeTableName: true,
+  indexes: [{ unique: true, fields: ['wid'] }]
 })
 
 export default WorkoutRunDetail
