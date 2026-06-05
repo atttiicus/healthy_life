@@ -8,7 +8,8 @@ import { errorHandler, responseHandler } from './middleware/response'
 import { FIXED_KEY, NGINX_STATIC_PATH} from './config/constant'
 import { getIPAddress } from './utils/util'
 import { privateRouter, publicRouter, adminPrivateRouter } from './router'
-import fs from 'fs';
+import fs from 'fs'
+import { swaggerSpec } from './config/swagger'
 
 const app = new Koa()
 
@@ -22,6 +23,13 @@ app.use(async (ctx, next) => {
   if (!ctx.path.startsWith('/static/')) return next()
   ctx.path = ctx.path.slice('/static'.length)
   return koaStatic(uploadDir)(ctx, next)
+})
+
+// OpenAPI 文档端点（swagger-jsdoc 动态生成，供 Apifox 拉取）
+app.use(async (ctx, next) => {
+  if (ctx.path !== '/docs/swagger.json') return next()
+  ctx.type = 'application/json'
+  ctx.body = swaggerSpec
 })
 
 app.use(loggerMiddleware)

@@ -31,6 +31,18 @@
 			}
 		},
 		{
+			"path": "pages/workout/index",
+			"style": { "navigationBarTitleText": "运动记录" }
+		},
+		{
+			"path": "pages/workout/add",
+			"style": { "navigationBarTitleText": "新增运动" }
+		},
+		{
+			"path": "pages/workout/detail",
+			"style": { "navigationBarTitleText": "运动详情" }
+		},
+		{
 			"path": "pages/user/index",
 			"style": {
 				"navigationBarTitleText": "我的"
@@ -76,26 +88,37 @@
 		"fontSize": "10px",
 		"iconWidth": "24px",
 		"spacing": "3px",
-		"list": [{
-			"pagePath": "pages/index/index",
-			"iconPath": "static/images/tabber/home_off.png",
-			"selectedIconPath": "static/images/tabber/home_on.png",
-			"text": "主页"
-		}, {
-			"pagePath": "pages/life/index",
-			"iconPath": "static/images/tabber/movement_off.png",
-			"selectedIconPath": "static/images/tabber/movement_on.png",
-			"text": "生活"
-		}, {
-			"pagePath": "pages/article/index",
-			"iconPath": "static/images/tabber/message_off.png",
-			"selectedIconPath": "static/images/tabber/message_on.png",
-			"text": "资讯"
-		}, {
-			"pagePath": "pages/user/index",
-			"iconPath": "static/images/tabber/user_off.png",
-			"selectedIconPath": "static/images/tabber/user_on.png",
-			"text": "用户"
-		}]
+		"list": [
+			{
+				"pagePath": "pages/index/index",
+				"iconPath": "static/images/tabber/home_off.png",
+				"selectedIconPath": "static/images/tabber/home_on.png",
+				"text": "主页"
+			},
+			{
+				"pagePath": "pages/workout/index",
+				"iconPath": "static/images/tabber/movement_off.png",
+				"selectedIconPath": "static/images/tabber/movement_on.png",
+				"text": "运动"
+			},
+			{
+				"pagePath": "pages/life/index",
+				"iconPath": "static/images/tabber/movement_off.png",
+				"selectedIconPath": "static/images/tabber/movement_on.png",
+				"text": "生活"
+			},
+			{
+				"pagePath": "pages/article/index",
+				"iconPath": "static/images/tabber/message_off.png",
+				"selectedIconPath": "static/images/tabber/message_on.png",
+				"text": "资讯"
+			},
+			{
+				"pagePath": "pages/user/index",
+				"iconPath": "static/images/tabber/user_off.png",
+				"selectedIconPath": "static/images/tabber/user_on.png",
+				"text": "用户"
+			}
+		]
 	}
 }
