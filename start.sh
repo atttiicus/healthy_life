@@ -30,6 +30,14 @@ s_log()  { echo -e "${CYAN}[server]${R}  $*"; }
 ad_log() { echo -e "${MAGENTA}[admin]${R}   $*"; }
 ap_log() { echo -e "${BLUE}[app]${R}     $*"; }
 
+# 为进程输出每行加颜色前缀
+prefix_log() {
+  local prefix="$1" color="$2"
+  while IFS= read -r line; do
+    printf "${color}%-10s${R} %s\n" "$prefix" "$line"
+  done
+}
+
 divider() {
   echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${R}"
 }
@@ -62,14 +70,14 @@ if [[ "$MODE" == "dev" ]]; then
   ap_log "Starting app       (uni-app h5 dev)..."
   echo ""
 
-  # 启动三个服务，各自在子 shell 中运行
-  (cd "$ROOT/server" && NODE_ENV=development pnpm run dev) &
+  # 启动三个服务，各自在子 shell 中运行，输出带颜色前缀
+  (cd "$ROOT/server" && NODE_ENV=development pnpm run dev 2>&1 | prefix_log "[server]" "$CYAN") &
   SERVER_PID=$!
 
-  (cd "$ROOT/admin"  && npm run dev) &
+  (cd "$ROOT/admin"  && npm run dev 2>&1 | prefix_log "[admin]  " "$MAGENTA") &
   ADMIN_PID=$!
 
-  (cd "$ROOT/app"    && npm run dev:h5) &
+  (cd "$ROOT/app"    && npm run dev:h5 2>&1 | prefix_log "[app]   " "$BLUE") &
   APP_PID=$!
 
   divider

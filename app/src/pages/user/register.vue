@@ -52,10 +52,16 @@
         </view>
         <view class="flex-1">
           <text class="text-sm font-medium text-[#374151] block mb-1">性别</text>
-          <view class="input-wrap">
-            <input class="flex-1 text-sm text-[#1f2937] bg-transparent"
-                   v-model="user_info.sex"
-                   placeholder="男 / 女" placeholder-style="color:#9ca3af" />
+          <view class="flex gap-2" style="padding: 8px 12px; background:#f9fafb; border-radius:12px;">
+            <text
+              v-for="opt in ['男', '女']" :key="opt"
+              class="flex-1 text-center text-sm font-medium"
+              style="padding: 6px 0; border-radius: 8px; transition: all .2s;"
+              :style="user_info.sex === opt
+                ? 'background:#10b981;color:#fff;'
+                : 'color:#9ca3af;'"
+              @tap="user_info.sex = opt"
+            >{{ opt }}</text>
           </view>
         </view>
       </view>
@@ -91,38 +97,45 @@ export default {
   },
   methods: {
     register() {
-      if (!this.verifyInfo()) {
-        uni.showModal({ title: '提示', content: '注册参数有误', showCancel: false }); return
+      const errMsg = this.verifyInfo()
+      if (errMsg) {
+        uni.showToast({ title: errMsg, icon: 'none', duration: 2500 }); return
       }
       uni.request({
         method: 'POST', url: '/api/user/register',
         data: {
-          account: this.user_info.account,
+          account:   this.user_info.account,
           user_name: this.user_info.username,
-          password: this.user_info.password,
-          sex: this.user_info.sex,
-          age: this.user_info.age,
-          email: this.user_info.email,
+          password:  this.user_info.password,
+          sex:       this.user_info.sex,
+          age:       this.user_info.age,
+          email:     this.user_info.email,
         },
         header: { 'Content-Type': 'application/x-www-form-urlencoded' },
         success: (res) => {
-          if (res.data) {
+          if (res.data && res.data.code === 20000) {
             uni.showModal({
-              title: '注册成功', content: '点击确认跳转至登录页面', showCancel: false,
+              title: '注册成功', content: '点击确认前往登录', showCancel: false,
               success: (r) => { if (r.confirm) uni.navigateTo({ url: './login' }) },
             })
           } else {
-            uni.showModal({ title: '注册失败', content: '请重试', showCancel: false })
+            uni.showToast({ title: res.data?.message || '注册失败，请重试', icon: 'none', duration: 2500 })
           }
         },
       })
     },
     verifyInfo() {
       const u = this.user_info
-      if (!/^(?:(?:\+|00)86)?1\d{10}$/.test(u.account)) return false
-      if (!u.password || !u.username) return false
-      if (!/^[男女]{1}$/.test(u.sex)) return false
-      return true
+      if (!u.account)                                    return '请填写手机号'
+      if (!/^1\d{10}$/.test(u.account))                 return '手机号格式不正确，需为11位手机号'
+      if (!u.password)                                   return '请设置密码'
+      if (u.password.length < 6)                        return '密码至少需要6位'
+      if (!u.username)                                   return '请填写昵称'
+      if (u.username.trim().length < 2)                 return '昵称至少需要2个字符'
+      if (!u.sex)                                        return '请选择性别'
+      if (u.age && (Number(u.age) < 1 || Number(u.age) > 120)) return '年龄应在 1 ~ 120 之间'
+      if (u.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(u.email)) return '邮箱格式不正确'
+      return null
     },
   },
 }

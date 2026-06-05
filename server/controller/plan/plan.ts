@@ -7,43 +7,33 @@ import { addPlanDataByUid, getPlanDataByUid, updatePlanDataByUid } from '../../s
  * @description 获取用户的健康计划数据
  * */
 export const getPlanDataApi = async (ctx: Context, next: Next) => {
+    const uid = ctx.userId
 
-    let { uid }  = ctx.request.query
-    if (!uid) throw CODE.needMissingParameters
-    if (isNaN(Number(uid))) throw CODE.errorTypeParameters
-
-    let resultUser = await getUserInfosService(Number(uid))
+    const resultUser = await getUserInfosService(uid)
     if (!resultUser) throw CODE.userNotExist
 
-    let result = await getPlanDataByUid(Number(uid))
-
+    const result = await getPlanDataByUid(uid)
     ctx.body = result?.dataValues
     return next()
 }
 
-
-/**
- * @description 设置用户当前的健康计划单, 如果检查到当前用户没有计划表,
- * 则创建一个新计划表, 如果用户当前拥有计划表,则对该计划表进行更新
- * */
 export const setPlanDataApi = async (ctx: Context, next: Next) => {
+    const uid = ctx.userId
+    const params = ctx.request.body
 
-    let { uid, ...params} = ctx.request.body
-    if (!uid) throw CODE.needMissingParameters
+    const userExists = await getUserInfosService(uid)
+    if (!userExists) throw CODE.userNotExist
 
-    let result = await getUserInfosService(uid)
-    if(!result) throw CODE.userNotExist
-    result =  await getPlanDataByUid(uid)
-    if(!result) {
-        let createResult =  await addPlanDataByUid(uid, {...params})
+    const existing = await getPlanDataByUid(uid)
+    if (!existing) {
+        const createResult = await addPlanDataByUid(uid, { ...params })
         if (!createResult) throw CODE.planAddError
         ctx.body = createResult.dataValues
     } else {
-        let updateResult =
-            await  updatePlanDataByUid(uid, {...params})
-        if (!updateResult) throw  CODE.planUpdateError
+        const updateResult = await updatePlanDataByUid(uid, { ...params })
+        if (!updateResult) throw CODE.planUpdateError
         ctx.body = updateResult
     }
-    
+
     return next()
 }

@@ -15,6 +15,7 @@ export const CODE = {
 
   // 50000 [数据库校验产生的错误]
   adminUserIsExist: {code: 50001, message: "该管理员已存在", key: "adminUserIsExist"},
+  adminRegisterNotAllowed: {code: 50002, message: "系统已初始化，禁止开放注册管理员", key: "adminRegisterNotAllowed"},
   /* -------------------------  User ------------------------- */
   userIsExist: {code: 50004, message: "该用户已存在", key: "userIsExist"},
   userNotExist: {code: 50005, message: "用户不存在", key: "userNotExist"},

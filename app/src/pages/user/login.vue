@@ -64,8 +64,12 @@ export default {
     ...mapActions(['userLogin']),
     async submitInfo() {
       if (!this.loginAccount || !this.loginPassword) return
-      await this.userLogin({ _account: this.loginAccount, _password: this.loginPassword })
-      if (this.user.uid) uni.switchTab({ url: '/pages/user/index' })
+      try {
+        await this.userLogin({ _account: this.loginAccount, _password: this.loginPassword })
+        uni.switchTab({ url: '/pages/user/index' })
+      } catch (err) {
+        uni.showToast({ title: err.message || '登录失败，请重试', icon: 'none', duration: 2500 })
+      }
     },
     goRegisterPage() { uni.navigateTo({ url: './register' }) },
   },

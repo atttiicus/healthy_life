@@ -25,8 +25,8 @@ export const getClientIPAddress = (ctx: { headers: Record<string, string | strin
   return "0.0.0.0"
 }
 
-export const generatorToken = (userId: number): string => {
-  return jwt.sign({ userId }, JWT.secret, { expiresIn: JWT.expires })
+export const generatorToken = (userId: number, role: 'user' | 'admin' = 'user'): string => {
+  return jwt.sign({ userId, role }, JWT.secret, { expiresIn: JWT.expires })
 }
 
 export const verifyJWTToken = (token: string, secret: string): jwt.JwtPayload => {

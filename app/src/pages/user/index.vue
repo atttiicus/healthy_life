@@ -71,13 +71,13 @@
 import { mapMutations, mapState } from 'vuex'
 export default {
   computed: {
-    ...mapState(['user']),
+    ...mapState(['user', 'userPlanData']),
     statsItems() {
       return [
-        { id: 'iWeight',      title: '体重', value: this.user.weight || '--', unit: 'KG'   },
-        { id: 'iHeight',      title: '身高', value: this.user.height || '--', unit: 'cm'   },
-        { id: 'iCholesterol', title: '血压', value: '90',                     unit: 'mmHg' },
-        { id: 'iHeartRate',   title: '心率', value: '60',                     unit: 'Bpm'  },
+        { id: 'iWeight',      title: '体重', value: this.user.weight                   || '--', unit: 'KG'   },
+        { id: 'iHeight',      title: '身高', value: this.user.height                   || '--', unit: 'cm'   },
+        { id: 'iCholesterol', title: '血压', value: this.userPlanData.bloodPressure    || '--', unit: 'mmHg' },
+        { id: 'iHeartRate',   title: '心率', value: this.userPlanData.heartRate        || '--', unit: 'Bpm'  },
       ]
     },
     settingItems() {

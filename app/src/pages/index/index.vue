@@ -291,7 +291,7 @@ export default {
   onLoad() {
     if (JSON.stringify(this.currentData) === '{}' && this.user.uid) {
       uni.request({
-        url: `/api/data/find?uid=${this.user.uid}`,
+        url: '/api/data/find',
         method: 'GET',
         header: { token: this.user.token },
         success: (res) => {
@@ -312,7 +312,7 @@ export default {
     fetchHistoryAndRender() {
       if (!this.user.uid) { this.initSheepEchartsTable([]); return }
       uni.request({
-        url: `/api/data/history?uid=${this.user.uid}&days=7`,
+        url: '/api/data/history?days=7',
         method: 'GET',
         header: { token: this.user.token },
         success: (res) => {

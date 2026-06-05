@@ -183,12 +183,20 @@ export default {
     updateDayDate() {
       if (!this.inspectDayData()) return
       this.disposeDayData()
-      const { uid, token } = this.user
+      const { token } = this.user
       const foods = this.mergedFoods
       uni.request({
-        method: 'GET',
-        url: `/api/data/add?uid=${uid}&calorie=${this.day_data.calorie}&sleepTime=${this.day_data.sleep_time}&stepNum=${this.day_data.step_num}&exerciseTime=${this.day_data.exercise_time}&weight=${this.day_data.weight}&foods=${encodeURIComponent(foods)}`,
-        header: { token },
+        method: 'POST',
+        url: '/api/data/add',
+        header: { token, 'content-type': 'application/json' },
+        data: {
+          calorie: this.day_data.calorie,
+          sleepTime: this.day_data.sleep_time,
+          stepNum: this.day_data.step_num,
+          exerciseTime: this.day_data.exercise_time,
+          weight: this.day_data.weight,
+          foods,
+        },
         success: (res) => {
           if (res.data.data) {
             this.setCurrentData(res.data.data)

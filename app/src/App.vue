@@ -17,11 +17,17 @@ export default {
       uni.getStorage({
           key: "user_data",
           success: (res) => {
-            console.log("App Launch => ", res.data)
-            this.setUser(res.data)
+            const u = res.data
+            // JWT 格式为 xxx.yyy.zzz，mock token 不符合此格式，直接清除
+            const isValidJwt = u && u.token && u.token.split('.').length === 3
+            if (!isValidJwt) {
+              uni.removeStorageSync('user_data')
+              return
+            }
+            this.setUser(u)
+            this.requestUserPlanData(u.token)
           }
       })
-      this.requestUserPlanData({uid: this.user.uid, token:this.user.token})
 		},
 		onShow: function() {
 			// console.log('App Show')

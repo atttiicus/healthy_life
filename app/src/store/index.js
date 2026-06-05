@@ -30,25 +30,30 @@ const store = new Vuex.Store({
          * 并将登录态保持到缓存中
          * */
         userLogin: (context, newVal) => {
-            uni.request({
-                url: '/api/user/login',
-                method: "POST",
-                data: {
-                    account: newVal._account,
-                    password: newVal._password,
-                },
-                header: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-Requested-With': 'xmlhttprequest'
-                },
-                success: (res) => {
-                    if(res.data.data) {
-                        // 保存参数至VueX
-                        context.commit("setUser", res.data.data)
-                        // 备份至缓存中
-                        uni.setStorageSync("user_data", res.data.data)
-                    }
-                }
+            return new Promise((resolve, reject) => {
+                uni.request({
+                    url: '/api/user/login',
+                    method: "POST",
+                    data: {
+                        account: newVal._account,
+                        password: newVal._password,
+                    },
+                    header: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-Requested-With': 'xmlhttprequest'
+                    },
+                    success: (res) => {
+                        if (res.data.data) {
+                            context.commit("setUser", res.data.data)
+                            uni.setStorageSync("user_data", res.data.data)
+                            context.dispatch('requestUserPlanData', res.data.data.token)
+                            resolve(res.data.data)
+                        } else {
+                            reject(res.data)
+                        }
+                    },
+                    fail: () => reject(new Error('网络请求失败，请检查网络连接'))
+                })
             })
         },
         /**
@@ -66,17 +71,15 @@ const store = new Vuex.Store({
             })
         },
         /**
-         * 请求当日的数据返回到到前端
+         * 请求用户健康计划数据，token 从 JWT 中间件获取 uid，无需手动传递
          * */
-        requestUserPlanData: (content, newVal) => {
+        requestUserPlanData: (content, token) => {
+            if (!token) return
             uni.request({
-                url: `/api/plan/get?uid=${newVal.uid}`,
-                method:"GET",
-                header: {
-                    'token': newVal.token,
-                },
+                url: '/api/plan/get',
+                method: 'GET',
+                header: { token },
                 success: (res) => {
-                    console.log(res)
                     if (res.data.data) {
                         content.commit("setUserPlanData", res.data.data)
                     }

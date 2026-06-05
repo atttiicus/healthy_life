@@ -9,4 +9,9 @@ node_modules
 /app/src/static/temp/
 /server/.env
 
-ai_docs
+# AI 相关
+.ai_docs
+.claude
+.agents
+CLAUDE.md
+skills-lock.json

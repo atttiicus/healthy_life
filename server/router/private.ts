@@ -23,7 +23,8 @@ router.post(project.user + "/writeOff", controllers.user_user.removeUserApi)
 router.post(project.user + "/update", controllers.user_user.updateUserInfoApi)
 
 // 每日数据接口
-router.get(project.data+"/add",     controllers.daydata_daydata.addDayData)
+router.post(project.data+"/add",    controllers.daydata_daydata.addDayData)
+router.post(project.data+"/update", controllers.daydata_daydata.updateCurrentDayData)
 router.get(project.data+"/find",    controllers.daydata_daydata.getCurrentDayData)
 router.get(project.data+"/history", controllers.daydata_daydata.getDayDataHistory)
 

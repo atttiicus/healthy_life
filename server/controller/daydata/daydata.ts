@@ -8,60 +8,40 @@ import { createDayDataService, getDayDataService, getDayDataHistoryService, upda
  * 添加完成后会返回该条数据
  * */
 export const addDayData = async (ctx: Context, next: Next) => {
-
-    let {uid, ...params} = ctx.request.query
-    if (!uid) throw CODE.needMissingParameters
-    if (isNaN(Number(uid))) throw CODE.errorTypeParameters
+    const uid = ctx.userId
+    const params = ctx.request.body
     if (JSON.stringify(params) === "{}") throw CODE.missingParameters
 
-    let result = await createDayDataService(Number(uid), params)
-
+    const result = await createDayDataService(uid, params)
     ctx.body = result?.dataValues
 
     return next()
-
 }
 
-/**
- * 获取用户当日的数据, 需要传入uid
- * */
 export const getCurrentDayData = async (ctx: Context, next: Next) => {
-
-    let {uid} = ctx.request.query
-    if (!uid) throw CODE.needMissingParameters
-    if (isNaN(Number(uid))) throw CODE.errorTypeParameters
-
-
-    let result = await getDayDataService(uid)
+    const uid = ctx.userId
+    const result = await getDayDataService(String(uid))
     ctx.body = result?.dataValues
 
     return next()
 }
 
-/**
- * 更新用户当日数据信息
- * */
 export const updateCurrentDayData = async (ctx: Context, next: Next) => {
-    let {did, ...params} = ctx.request.query
+    const { did, ...params } = ctx.request.body
     if (!did) throw CODE.needMissingParameters
     if (isNaN(Number(did))) throw CODE.errorTypeParameters
 
-    let result = await updateDayDataService(did, params)
-
+    const result = await updateDayDataService(did, params)
     ctx.body = { result }
 
     return next()
 }
 
-/**
- * 获取用户最近 N 天的健康数据（用于趋势图）
- */
 export const getDayDataHistory = async (ctx: Context, next: Next) => {
-  const { uid, days } = ctx.request.query
-  if (!uid) throw CODE.needMissingParameters
-  if (isNaN(Number(uid))) throw CODE.errorTypeParameters
+  const uid = ctx.userId
+  const { days } = ctx.request.query
 
-  const list = await getDayDataHistoryService(Number(uid), Number(days) || 7)
+  const list = await getDayDataHistoryService(uid, Number(days) || 7)
   ctx.body = list.map(r => r.dataValues)
   return next()
 }

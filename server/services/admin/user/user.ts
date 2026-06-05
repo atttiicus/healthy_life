@@ -1,6 +1,8 @@
 import bcrypt from 'bcryptjs'
 import AdminUser from '../../../models/adminUser'
 
+export const countAdminService = () => AdminUser.count()
+
 const SALT_ROUNDS = 10
 
 export const getUserInfoByIdService = (userId: number) => {

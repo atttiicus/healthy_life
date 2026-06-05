@@ -35,6 +35,10 @@ export const getUserByAccountService = (account: string) => {
   return NormalUser.findOne({ where: { account, is_del: 0 } })
 }
 
+export const getUserByAccountForRegister = (account: string) => {
+  return NormalUser.findOne({ where: { account } })
+}
+
 export const registerUserService = async (params: registerParams) => {
   const hashedPassword = await bcrypt.hash(params.password, SALT_ROUNDS)
   return NormalUser.create({ ...params, password: hashedPassword })

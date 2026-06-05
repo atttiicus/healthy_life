@@ -40,13 +40,19 @@ export const getUserDayDataByTimeService = (uid: number, time: Date) => {
 }
 
 /**
- * 传入 uid 与 各类健康参数 创建日数据
- * @param uid {number} 用户id
- * @param params {createParams} 健康参数
- * @return 数据库创建信息
+ * 当日已有记录则更新，否则新建（upsert 语义）
  * */
-export const createDayDataService = (uid: number, params: healthParams) => {
-  return DayData.create({uid: uid, ...params},)
+export const createDayDataService = async (uid: number, params: healthParams) => {
+  const startDay = dayjs().startOf('date').format('YYYY-MM-DD HH:mm:ss')
+  const endDay   = dayjs().endOf('date').format('YYYY-MM-DD HH:mm:ss')
+  const existing = await DayData.findOne({
+    where: { uid, is_del: 0, created_at: { [Op.between]: [startDay, endDay] } }
+  })
+  if (existing) {
+    await existing.update(params)
+    return existing
+  }
+  return DayData.create({ uid, ...params })
 }
 
 /**

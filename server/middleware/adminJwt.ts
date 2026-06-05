@@ -14,9 +14,11 @@ export const adminJwtMiddleware = async (ctx: Koa.Context, next: Koa.Next) => {
     const adminId = decoded.userId
 
     if (typeof adminId !== 'number') throw CODE.tokenFailed
+    if (decoded.role !== 'admin') throw CODE.tokenFailed
 
     const adminInfo = await getUserInfoByIdService(adminId)
     if (!adminInfo) throw CODE.tokenFailed
+    if ((adminInfo.dataValues as Record<string, unknown>).token !== token) throw CODE.tokenFailed
 
     ctx.adminId = adminId
     ctx.adminInfo = adminInfo.dataValues as Record<string, unknown>

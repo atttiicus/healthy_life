@@ -114,43 +114,10 @@
 
 <script>
 import dayjs from 'dayjs'
+import { mapState } from 'vuex'
 
 const BASE = '2024-01-01 '
-
-// 生成周报数据（最近7天）
-function weekData() {
-  const times  = ['07:15', '06:30', '07:10', '06:50', '07:35', '06:55', '07:20']
-  const xData  = []
-  const yData  = []
-  for (let i = 6; i >= 0; i--) {
-    xData.push(dayjs().subtract(i, 'day').format('MMDD'))
-    yData.push(BASE + times[6 - i])
-  }
-  return { xData, yData }
-}
-
-// 生成月报数据（最近4周均值）
-function monthData() {
-  const times = ['07:05', '06:48', '07:22', '07:10']
-  return {
-    xData: ['第1周', '第2周', '第3周', '第4周'],
-    yData: times.map(t => BASE + t),
-  }
-}
-
-// 生成年报数据（最近12个月均值）
-function yearData() {
-  const times = [
-    '06:45', '06:52', '07:05', '07:20', '07:15', '07:10',
-    '06:55', '07:00', '07:18', '07:08', '06:50', '07:20',
-  ]
-  return {
-    xData: ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],
-    yData: times.map(t => BASE + t),
-  }
-}
-
-const DATA_MAP = { 周报: weekData, 月报: monthData, 年报: yearData }
+const TAB_DAYS = { 周报: 7, 月报: 30, 年报: 90 }
 
 export default {
   data() {
@@ -160,10 +127,11 @@ export default {
       activeTab: '周报',
       tabs: ['周报', '月报', '年报'],
       _chart: null,
+      historyData: [],
     }
   },
   computed: {
-    ...require('vuex').mapState(['currentData', 'userPlanData', 'user']),
+    ...mapState(['currentData', 'userPlanData', 'user']),
 
     // 综合健康评分（满分 100）
     targetRate() {
@@ -317,12 +285,30 @@ export default {
     },
   },
   mounted() {
-    this.$nextTick(() => this.renderChart())
+    this.fetchHistory()
   },
   methods: {
+    fetchHistory() {
+      const { token } = this.user
+      if (!token) { this.$nextTick(() => this.renderChart()); return }
+      const days = TAB_DAYS[this.activeTab]
+      uni.request({
+        url: `/api/data/history?days=${days}`,
+        method: 'GET',
+        header: { token },
+        success: (res) => {
+          this.historyData = res.data?.data || []
+          this.$nextTick(() => this.renderChart())
+        },
+        fail: () => {
+          this.historyData = []
+          this.$nextTick(() => this.renderChart())
+        },
+      })
+    },
     onTabChange(tab) {
       this.activeTab = tab
-      this.$nextTick(() => this.renderChart())
+      this.fetchHistory()
     },
     showDataReport() { this.isShowDia = true },
     renderChart() {
@@ -331,7 +317,8 @@ export default {
       if (!this._chart) {
         this._chart = this.$echarts.init(el)
       }
-      const { xData, yData } = DATA_MAP[this.activeTab]()
+      const xData = this.historyData.map(r => dayjs(r.created_at).format('MM-DD'))
+      const yData = this.historyData.map(r => r.sleepTime ? BASE + r.sleepTime : null)
       this._chart.setOption({
         grid: { top: 8, bottom: 28, left: 8, right: 12, containLabel: true },
         xAxis: {

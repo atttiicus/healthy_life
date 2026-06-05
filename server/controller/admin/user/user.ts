@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs'
 import { Context, Next } from 'koa'
 import { CODE } from '../../../config/code'
 import {
+  countAdminService,
   getUserInfoAccountService,
   getUserInfoByIdService,
   registerUserService,
@@ -10,6 +11,10 @@ import {
 import { generatorToken } from '../../../utils/util'
 
 export const registerUserApi = async (ctx: Context, next: Next) => {
+  // 系统引导：无管理员时允许公开注册；已有管理员后禁止
+  const adminCount = await countAdminService()
+  if (adminCount > 0) throw CODE.adminRegisterNotAllowed
+
   const { account, password } = ctx.request.body
   if (!account || !password) throw CODE.missingParameters
 
@@ -33,7 +38,7 @@ export const userLoginApi = async (ctx: Context, next: Next) => {
   if (!isPasswordCorrect) throw CODE.passwordFailed
 
   const userId = accountInfo.dataValues.id
-  const token = generatorToken(userId)
+  const token = generatorToken(userId, 'admin')
   await updateUserInfoServices({ token }, userId)
 
   const realUserInfo = await getUserInfoByIdService(userId)

@@ -14,9 +14,11 @@ export const jwtMiddlewareDeal = async (ctx: Koa.Context, next: Koa.Next) => {
     const userId = decoded.userId
 
     if (typeof userId !== 'number') throw CODE.tokenFailed
+    if (decoded.role !== 'user') throw CODE.tokenFailed
 
     const userInfo = await getUserInfosService(userId)
     if (!userInfo) throw CODE.tokenFailed
+    if ((userInfo.dataValues as Record<string, unknown>).token !== token) throw CODE.tokenFailed
 
     ctx.userId = userId
     ctx.userInfo = userInfo

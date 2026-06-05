@@ -228,7 +228,6 @@ export default {
         uni.showToast({ title: '用户名不能为空', icon: 'error' }); return
       }
       const data = {
-        uid:       this.user.uid,
         user_name: this.form.username,
         sex:       this.form.sex,
         age:       this.form.age,
