@@ -5,11 +5,12 @@ import controllers from '../controller'
 
 const router = new koaRouter()
 const project = {
-  admin: "/admin",
-  user: "/user",
-  data: "/data",
+  admin:   "/admin",
+  user:    "/user",
+  data:    "/data",
   article: "/article",
-  plan: "/plan"
+  plan:    "/plan",
+  workout: "/workout",
 }
 
 // 启动jwt校验
@@ -31,5 +32,12 @@ router.get(project.data+"/history", controllers.daydata_daydata.getDayDataHistor
 // 健康计划表接口
 router.get(project.plan+"/get", controllers.plan_plan.getPlanDataApi)
 router.post(project.plan+"/set", controllers.plan_plan.setPlanDataApi)
+
+// 运动记录接口（stats 必须在 :wid 之前注册）
+router.post(project.workout   + '/add',   controllers.workout_workout.addWorkout)
+router.get(project.workout    + '/list',  controllers.workout_workout.getWorkoutList)
+router.get(project.workout    + '/stats', controllers.workout_workout.getWorkoutStats)
+router.get(project.workout    + '/:wid',  controllers.workout_workout.getWorkoutDetail)
+router.delete(project.workout + '/:wid',  controllers.workout_workout.deleteWorkout)
 
 export default router

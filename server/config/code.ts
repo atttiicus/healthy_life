@@ -25,4 +25,6 @@ export const CODE = {
   /* -------------------------  Plan ------------------------- */
   planAddError: {code: 52000, message: "健康计划添加失败", key: "planAddError"},
   planUpdateError: {code: 52001, message: "健康计划更新失败", key: "planUpdateError"},
+  /* -------------------------  Workout ------------------------- */
+  workoutNotFound: {code: 53000, message: "运动记录不存在", key: "workoutNotFound"},
 }
