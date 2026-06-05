@@ -13,7 +13,7 @@
         <view class="relative flex-shrink-0" style="width:96px;height:96px">
           <van-circle
             v-model="currentRate"
-            :rate="targetRate"
+            :rate="healthScore"
             :speed="100"
             size="96px"
             color="#ffffff"
@@ -23,7 +23,7 @@
           />
           <!-- 中心分数 -->
           <view style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
-            <text class="text-white font-bold" style="font-size:28px;line-height:1">{{ targetRate }}</text>
+            <text class="text-white font-bold" style="font-size:28px;line-height:1">{{ healthScore }}</text>
             <text style="color:rgba(255,255,255,.65);font-size:11px;margin-top:2px">/ 100</text>
           </view>
         </view>
@@ -32,11 +32,11 @@
         <view class="flex-1">
           <view class="flex items-center gap-2 mb-2">
             <view class="rounded-full px-3 py-0.5" style="background:rgba(255,255,255,.2)">
-              <text class="text-white text-xs font-medium">{{ scoreLabel }}</text>
+              <text class="text-white text-xs font-medium">{{ scoreBadge.label }}</text>
             </view>
           </view>
           <text class="text-xs leading-relaxed" style="color:rgba(255,255,255,.8)">
-            {{ scoreDesc }}
+            {{ scoreBadge.desc }}
           </text>
         </view>
 
@@ -67,7 +67,7 @@
         >
           <view class="flex items-center justify-between mb-2">
             <text class="text-sm font-medium text-[#374151]">{{ item.title }}</text>
-            <text class="text-xl">{{ item.icon }}</text>
+            <van-icon :name="item.icon" size="22" color="var(--icon-secondary)" />
           </view>
           <text class="text-xs text-[#9ca3af]">最近{{ activeTab }}</text>
           <text
@@ -85,7 +85,14 @@
           <text class="sec-title">睡眠质量趋势</text>
           <text class="text-xs text-[#9ca3af]">{{ activeTab }}数据</text>
         </view>
-        <view id="lifeCharts" style="width:100%;height:180px"></view>
+        <view v-if="historyData.length" id="lifeCharts" style="width:100%;height:180px"></view>
+        <view v-else class="flex flex-col items-center justify-center py-6">
+          <van-empty
+            description="暂无睡眠数据"
+            image-size="80"
+          />
+          <text class="text-xs text-[#9ca3af] mt-1">记录今日数据后即可查看趋势</text>
+        </view>
       </view>
 
     </view>
@@ -102,7 +109,7 @@
           最近{{ activeTab }}体重报告
         </text>
         <text class="text-sm text-[#6b7280] block mb-2">单项评分</text>
-        <van-progress :percentage="targetRate" :pivot-text="targetRate + '分'" stroke-width="8" color="#10b981" />
+        <van-progress :percentage="healthScore" :pivot-text="healthScore + '分'" stroke-width="8" color="#10b981" />
         <view class="mt-4 rounded-xl p-4 bg-[#f9fafb]">
           <text class="text-sm text-[#374151] leading-relaxed">{{ reportSummary }}</text>
         </view>
@@ -114,7 +121,7 @@
 
 <script>
 import dayjs from 'dayjs'
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 
 const BASE = '2024-01-01 '
 const TAB_DAYS = { 周报: 7, 月报: 30, 年报: 90 }
@@ -132,71 +139,9 @@ export default {
   },
   computed: {
     ...mapState(['currentData', 'userPlanData', 'user']),
-
-    // 综合健康评分（满分 100）
-    targetRate() {
-      if (JSON.stringify(this.currentData) === '{}') return 0
-      let score = 0
-      // BMI 正常 +25
-      const w = Number(this.currentData.weight) || Number(this.user.weight)
-      const h = Number(this.user.height)
-      if (w && h) {
-        const bmi = w / Math.pow(h / 100, 2)
-        if (bmi >= 18.5 && bmi < 25) score += 25
-        else if (bmi >= 25 && bmi < 30) score += 12
-        else score += 5
-      } else { score += 15 }
-
-      // 卡路里在目标 80~110% +20
-      const calPct = this.userPlanData.calorie
-        ? (Number(this.currentData.calorie) || 0) / Number(this.userPlanData.calorie) * 100
-        : 80
-      if (calPct >= 80 && calPct <= 110) score += 20
-      else if (calPct > 110) score += 8
-      else score += 12
-
-      // 步数达成率 +20
-      const stepPct = this.userPlanData.kilometre
-        ? (Number(this.currentData.stepNum) || 0) / Number(this.userPlanData.kilometre) * 100
-        : 50
-      score += Math.round(Math.min(stepPct, 100) / 100 * 20)
-
-      // 运动时长达成率 +20
-      const exPct = this.userPlanData.exerciseTime
-        ? (Number(this.currentData.exerciseTime) || 0) / Number(this.userPlanData.exerciseTime) * 100
-        : 50
-      score += Math.round(Math.min(exPct, 100) / 100 * 20)
-
-      // 睡眠时长 6~9h +15
-      const sleep = this.currentData.sleepTime
-      if (sleep) {
-        const [hh, mm] = sleep.split(':').map(Number)
-        const mins = hh * 60 + (mm || 0)
-        if (mins >= 360 && mins <= 540) score += 15
-        else if (mins >= 300) score += 8
-        else score += 3
-      } else { score += 10 }
-
-      return Math.min(100, score)
-    },
+    ...mapGetters(['healthScore', 'scoreBadge']),
 
     text() { return this.currentRate.toFixed(0) },
-
-    scoreLabel() {
-      const s = this.targetRate
-      if (s >= 90) return '优秀'
-      if (s >= 75) return '良好'
-      if (s >= 60) return '中等'
-      return '较差'
-    },
-
-    scoreDesc() {
-      const s = this.targetRate
-      if (s >= 90) return '健康状况非常好，请继续保持！'
-      if (s >= 75) return '评分良好，主要注意保持充足睡眠与规律运动。'
-      if (s >= 60) return '评分中等，建议注意体重管理、饭后多运动，晚上11点前入睡。'
-      return '健康状况需要关注，请合理安排饮食、增加运动，注意休息。'
-    },
 
     // 健康数据卡片（基于真实数据计算进度）
     healthItems() {
@@ -232,7 +177,7 @@ export default {
 
       return [
         {
-          title: '体重管理', icon: '⚖️',
+          title: '体重管理', icon: 'balance-o',
           direction: wDiff !== null ? (Number(wDiff) <= 0 ? '↓ 低于目标' : `↑ 超出 ${wDiff}kg`) : '暂无数据',
           value: curW ? `${curW} kg` : '—',
           tip: planW ? `目标 ${planW} kg` : '尚未设定目标',
@@ -240,25 +185,25 @@ export default {
           onTap: () => this.showDataReport(),
         },
         {
-          title: '运动锻炼', icon: '🏋️',
-          direction: exPct >= 100 ? '✓ 已达标' : `达成 ${exPct}%`,
+          title: '运动锻炼', icon: 'fire-o',
+          direction: exPct >= 100 ? '已达标' : `达成 ${exPct}%`,
           value: `${exCur} min`,
           tip: `目标 ${exPlan} min`,
           trend: exPct >= 80 ? 'good' : 'bad',
           onTap: () => this.showDataReport(),
         },
         {
-          title: '睡眠质量', icon: '😴',
+          title: '睡眠质量', icon: 'clock-o',
           direction: sleepDiff !== null
-            ? (sleepGood ? '✓ 睡眠达标' : `少 ${Math.abs(sleepDiff)} 分钟`)
+            ? (sleepGood ? '睡眠达标' : `少 ${Math.abs(sleepDiff)} 分钟`)
             : '暂无数据',
           value: sleepCur || '—',
           tip: `目标 ${sleepPlan}`,
           trend: sleepGood ? 'good' : 'bad',
         },
         {
-          title: '热量摄入', icon: '🥗',
-          direction: calGood ? '✓ 摄入适中' : (calPct > 110 ? '⚠ 摄入超标' : '⚠ 摄入不足'),
+          title: '热量摄入', icon: 'hot-o',
+          direction: calGood ? '摄入适中' : (calPct > 110 ? '摄入超标' : '摄入不足'),
           value: `${calCur} kcal`,
           tip: `目标 ${calPlan} kcal`,
           trend: calGood ? 'good' : 'bad',

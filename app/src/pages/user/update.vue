@@ -20,7 +20,7 @@
 
         <view class="field-row" @tap="focusInput('username')">
           <view class="field-icon-wrap">
-            <text>👤</text>
+            <van-icon name="manager-o" size="18" color="var(--icon-primary)" />
           </view>
           <view class="field-body">
             <text class="field-label">用户名</text>
@@ -37,7 +37,7 @@
 
         <view class="field-row" @tap="focusInput('oldPassword')">
           <view class="field-icon-wrap">
-            <text>🔒</text>
+            <van-icon name="lock" size="18" color="var(--icon-primary)" />
           </view>
           <view class="field-body">
             <text class="field-label">原密码</text>
@@ -55,7 +55,7 @@
 
         <view class="field-row" @tap="focusInput('newPassword')">
           <view class="field-icon-wrap">
-            <text>✏️</text>
+            <van-icon name="edit" size="18" color="var(--icon-primary)" />
           </view>
           <view class="field-body">
             <text class="field-label">新密码</text>
@@ -74,7 +74,7 @@
         <!-- 头像上传 -->
         <view class="field-row" @tap="uploadUserImage">
           <view class="field-icon-wrap">
-            <text>📷</text>
+            <van-icon name="photograph" size="18" color="var(--icon-primary)" />
           </view>
           <view class="field-body">
             <text class="field-label">头像</text>
@@ -105,7 +105,7 @@
         >
           <view class="field-row" @tap="focusInput(item.key)">
             <view class="field-icon-wrap">
-              <text>{{ item.icon }}</text>
+              <van-icon :name="item.icon" size="18" color="var(--icon-primary)" />
             </view>
             <view class="field-body">
               <text class="field-label">{{ item.label }}</text>
@@ -164,12 +164,12 @@ export default {
     ...mapState(['user']),
     personalFields() {
       return [
-        { key: 'sex',         icon: '⚧',  label: '性别', placeholder: '男 / 女'         },
-        { key: 'age',         icon: '🎂',  label: '年龄', placeholder: '请输入年龄',  type: 'number', unit: '岁'  },
-        { key: 'weight',      icon: '⚖️',  label: '体重', placeholder: '请输入体重',  type: 'number', unit: 'kg'  },
-        { key: 'height',      icon: '📏',  label: '身高', placeholder: '请输入身高',  type: 'number', unit: 'cm'  },
-        { key: 'cholesterol', icon: '💉',  label: '血压', placeholder: '如 120/80'                                },
-        { key: 'heartRate',   icon: '❤️',  label: '心率', placeholder: '请输入心率',  type: 'number', unit: 'bpm' },
+        { key: 'sex',         icon: 'friends-o',     label: '性别', placeholder: '男 / 女'         },
+        { key: 'age',         icon: 'birthday-cake-o', label: '年龄', placeholder: '请输入年龄',  type: 'number', unit: '岁'  },
+        { key: 'weight',      icon: 'balance-o',     label: '体重', placeholder: '请输入体重',  type: 'number', unit: 'kg'  },
+        { key: 'height',      icon: 'description-o', label: '身高', placeholder: '请输入身高',  type: 'number', unit: 'cm'  },
+        { key: 'cholesterol', icon: 'shield-o',      label: '血压', placeholder: '如 120/80'                                },
+        { key: 'heartRate',   icon: 'like-o',        label: '心率', placeholder: '请输入心率',  type: 'number', unit: 'bpm' },
       ]
     },
   },
@@ -214,10 +214,10 @@ export default {
             name: 'file',
             success: (result) => {
               this.form.newImage = JSON.parse(result.data).data.path
-              uni.showToast({ title: '上传成功', icon: 'success' })
+              uni.showToast({ title: '上传成功', icon: 'none', duration: 1500 })
             },
             fail: () => {
-              uni.showToast({ title: '上传失败', icon: 'error' })
+              uni.showToast({ title: '上传失败', icon: 'none', duration: 2000 })
             },
           })
         },
@@ -225,7 +225,7 @@ export default {
     },
     onSubmit() {
       if (!this.form.username) {
-        uni.showToast({ title: '用户名不能为空', icon: 'error' }); return
+        uni.showToast({ title: '用户名不能为空', icon: 'none', duration: 2000 }); return
       }
       const data = {
         user_name: this.form.username,
@@ -244,10 +244,10 @@ export default {
         header: { token: this.user.token, 'Content-Type': 'application/x-www-form-urlencoded' },
         success: (res) => {
           if (res.data.data) {
-            uni.showToast({ title: '修改成功', icon: 'success' })
+            uni.showToast({ title: '修改成功', icon: 'none', duration: 1500 })
             setTimeout(() => uni.navigateBack(), 800)
           } else {
-            uni.showToast({ title: res.data.message || '修改失败', icon: 'error' })
+            uni.showToast({ title: res.data.message || '修改失败', icon: 'none', duration: 2000 })
           }
         },
       })

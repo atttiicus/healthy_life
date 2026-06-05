@@ -6,14 +6,16 @@
       <div class="sheet-header">
         <div class="sheet-handle"></div>
         <div class="sheet-title">今日数据更新</div>
-        <div class="sheet-close" @tap.stop="closeDialog">✕</div>
+        <div class="sheet-close" @tap.stop="closeDialog">
+          <van-icon name="cross" size="16" color="#6b7280" />
+        </div>
       </div>
 
       <!-- 健康指标字段 -->
       <div class="field-list">
         <div class="field-item" v-for="item in fields" :key="item.key">
           <div class="field-left">
-            <span class="field-icon">{{ item.icon }}</span>
+            <van-icon :name="item.icon" size="20" color="var(--icon-primary)" />
             <div class="field-info">
               <span class="field-label">{{ item.label }}</span>
               <input
@@ -34,7 +36,10 @@
       <!-- 饮食记录：三餐分类 -->
       <div class="meal-section">
         <div class="meal-header">
-          <span class="meal-title">🍽 今日饮食记录</span>
+          <view class="flex items-center gap-1">
+            <van-icon name="orders-o" size="16" color="var(--icon-primary)" />
+            <span class="meal-title">今日饮食记录</span>
+          </view>
           <span class="meal-tip">多项用逗号分隔</span>
         </div>
 
@@ -53,7 +58,7 @@
           <div v-for="meal in meals" :key="meal.key" v-show="activeMeal === meal.key">
             <div class="meal-input-box" @click.stop>
               <div class="meal-input-header">
-                <span class="meal-emoji">{{ meal.icon }}</span>
+                <van-icon :name="meal.icon" size="18" color="var(--icon-primary)" />
                 <span class="meal-input-label">{{ meal.label }}</span>
               </div>
               <textarea
@@ -111,18 +116,18 @@ export default {
     ...mapState(['user', 'currentData', 'userPlanData']),
     meals() {
       return [
-        { key: 'breakfast', label: '早餐', icon: '🌅', placeholder: '如：豆浆,鸡蛋,馒头' },
-        { key: 'lunch',     label: '午餐', icon: '☀️', placeholder: '如：米饭,红烧肉,青菜' },
-        { key: 'dinner',    label: '晚餐', icon: '🌙', placeholder: '如：面条,西红柿鸡蛋' },
+        { key: 'breakfast', label: '早餐', icon: 'smile-o',  placeholder: '如：豆浆,鸡蛋,馒头' },
+        { key: 'lunch',     label: '午餐', icon: 'shop-o',   placeholder: '如：米饭,红烧肉,青菜' },
+        { key: 'dinner',    label: '晚餐', icon: 'star-o',   placeholder: '如：面条,西红柿鸡蛋' },
       ]
     },
     fields() {
       return [
-        { key: 'weight',        icon: '⚖️', label: '体重',     placeholder: '今日体重 (kg)',     plan: (this.userPlanData.weight       || '—') + ' KG'  },
-        { key: 'calorie',       icon: '🔥', label: '卡路里',   placeholder: '今日摄入卡路里(总)', plan: (this.userPlanData.calorie      || '—') + ' 卡'  },
-        { key: 'step_num',      icon: '🏃', label: '步数',     placeholder: '今日运动步数',       plan: (this.userPlanData.kilometre    || '—') + ' 步'  },
-        { key: 'exercise_time', icon: '⏱', label: '有氧运动', placeholder: '有氧运动时长(分钟)',  plan: (this.userPlanData.exerciseTime || '—') + ' min' },
-        { key: 'sleep_time',    icon: '😴', label: '睡眠时长', placeholder: '格式 HH:MM',  type: 'text', plan: this.userPlanData.sleepTime || '—' },
+        { key: 'weight',        icon: 'balance-o',   label: '体重',     placeholder: '今日体重 (kg)',     plan: (this.userPlanData.weight       || '—') + ' KG'  },
+        { key: 'calorie',       icon: 'fire-o',      label: '卡路里',   placeholder: '今日摄入卡路里(总)', plan: (this.userPlanData.calorie      || '—') + ' 卡'  },
+        { key: 'step_num',      icon: 'todo-list-o', label: '步数',     placeholder: '今日运动步数',       plan: (this.userPlanData.kilometre    || '—') + ' 步'  },
+        { key: 'exercise_time', icon: 'clock-o',     label: '有氧运动', placeholder: '有氧运动时长(分钟)',  plan: (this.userPlanData.exerciseTime || '—') + ' min' },
+        { key: 'sleep_time',    icon: 'moon-o',      label: '睡眠时长', placeholder: '格式 HH:MM',  type: 'text', plan: this.userPlanData.sleepTime || '—' },
       ]
     },
     // 合并三餐为结构化字符串：早餐:xxx;午餐:xxx;晚餐:xxx
@@ -200,7 +205,7 @@ export default {
         success: (res) => {
           if (res.data.data) {
             this.setCurrentData(res.data.data)
-            uni.showToast({ title: '更新成功', icon: 'success' })
+            uni.showToast({ title: '更新成功', icon: 'none', duration: 1500 })
             this.closeDialog()
           }
         },
@@ -209,7 +214,7 @@ export default {
 
     inspectDayData() {
       if (!/^(([01]?[0-9]|2[0-3]):[0-5][0-9])$/.test(this.day_data.sleep_time)) {
-        uni.showToast({ title: '睡眠格式应为 HH:MM', icon: 'error' })
+        uni.showToast({ title: '睡眠格式应为 HH:MM', icon: 'none', duration: 2000 })
         return false
       }
       return true
