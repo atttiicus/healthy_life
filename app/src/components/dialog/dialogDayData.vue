@@ -6,7 +6,9 @@
       <div class="sheet-header">
         <div class="sheet-handle"></div>
         <div class="sheet-title">今日数据更新</div>
-        <div class="sheet-close" @tap.stop="closeDialog">✕</div>
+        <div class="sheet-close" @tap.stop="closeDialog">
+          <van-icon name="cross" size="16" color="#6b7280" />
+        </div>
       </div>
 
       <!-- 健康指标字段 -->

@@ -4,7 +4,7 @@
     <!-- 顶部装饰 -->
     <view class="pt-16 pb-20 px-6"
           style="background:linear-gradient(135deg,#10b981 0%,#059669 100%)">
-      <text class="text-white font-bold block" style="font-size:28px">欢迎回来 👋</text>
+      <text class="text-white font-bold block" style="font-size:28px">欢迎回来</text>
       <text class="text-sm block mt-2" style="color:rgba(255,255,255,.7)">
         登录您的健康生活账号
       </text>
