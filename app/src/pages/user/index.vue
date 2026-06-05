@@ -5,11 +5,14 @@
     <view class="px-5 pt-10 pb-16"
           style="background:linear-gradient(135deg,#10b981 0%,#059669 100%)">
       <view class="flex items-center gap-4">
-        <view class="rounded-2xl overflow-hidden border-2 flex-shrink-0"
-              style="width:64px;height:64px;border-color:rgba(255,255,255,.4)"
+        <view class="rounded-2xl flex-shrink-0 flex items-center justify-center"
+              style="width:64px;height:64px;background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.4)"
               @tap="userCoverHandle">
-          <image src="/static/user_def.png" mode="aspectFill"
+          <image v-if="user.avatar"
+                 :src="user.avatar" mode="aspectFill"
+                 class="rounded-2xl"
                  style="width:64px;height:64px" />
+          <van-icon v-else name="manager-o" size="32" color="rgba(255,255,255,.9)" />
         </view>
         <view class="flex-1">
           <text class="text-white text-xl font-bold block">
@@ -55,7 +58,7 @@
         >
           <view class="w-8 h-8 rounded-xl flex items-center justify-center mr-3"
                 :style="{ background: item.bg }">
-            <text>{{ item.icon }}</text>
+            <van-icon :name="item.icon" size="18" :color="item.iconColor || 'var(--icon-secondary)'" />
           </view>
           <text class="flex-1 text-sm font-medium text-[#374151]">{{ item.title }}</text>
           <text class="text-[#d1d5db] text-lg">›</text>
@@ -63,6 +66,15 @@
       </view>
 
     </view>
+
+    <van-dialog
+      v-model="showLogoutDialog"
+      title="退出账号"
+      message="确认退出当前账户？"
+      show-cancel-button
+      confirm-button-color="#10b981"
+      @confirm="doLogout"
+    />
 
   </view>
 </template>
@@ -82,36 +94,32 @@ export default {
     },
     settingItems() {
       return [
-        { title: '公告',     icon: '📢', bg: '#fef3c7', onTap: null },
-        { title: '管理设置', icon: '⚙️', bg: '#ede9fe', onTap: null },
-        { title: '关于我们', icon: 'ℹ️', bg: '#dbeafe', onTap: null },
-        { title: '退出账号', icon: '🚪', bg: '#fee2e2', onTap: this.logout },
+        { title: '公告',     icon: 'bullhorn-o', iconColor: 'var(--icon-amber)',  bg: '#fef3c7', onTap: null },
+        { title: '管理设置', icon: 'setting-o',  iconColor: 'var(--icon-purple)', bg: '#ede9fe', onTap: null },
+        { title: '关于我们', icon: 'info-o',     iconColor: 'var(--icon-info)',   bg: '#dbeafe', onTap: null },
+        { title: '退出账号', icon: 'cross',      iconColor: 'var(--icon-danger)', bg: '#fee2e2', onTap: this.logout },
       ]
     },
   },
-  data() { return {} },
+  data() { return { showLogoutDialog: false } },
   onLoad() {
-    if (!this.user.uid) uni.navigateTo({ url: './login' })
+    if (!this.user.uid) uni.navigateTo({ url: '/pages/user/login' })
   },
   methods: {
     ...mapMutations(['setUser']),
     logout() {
-      uni.showModal({
-        title: '是否退出当前账户',
-        success: (res) => {
-          if (res.confirm) {
-            this.setUser({})
-            uni.setStorageSync('user_data', {})
-          }
-        },
-      })
+      this.showLogoutDialog = true
+    },
+    doLogout() {
+      this.setUser({})
+      uni.setStorageSync('user_data', {})
     },
     userCoverHandle() {
-      if (!this.user.uid) { uni.navigateTo({ url: './login' }); return }
+      if (!this.user.uid) { uni.navigateTo({ url: '/pages/user/login' }); return }
     },
     userDataHandle(id = 'iWeight') {
-      if (!this.user.uid) { uni.navigateTo({ url: './login' }); return }
-      uni.navigateTo({ url: './update?id=' + id })
+      if (!this.user.uid) { uni.navigateTo({ url: '/pages/user/login' }); return }
+      uni.navigateTo({ url: '/pages/user/update?id=' + id })
     },
   },
 }

@@ -1,10 +1,10 @@
 <template>
-  <view class="min-h-screen bg-[#f0fdf4]">
+  <view class="min-h-screen bg-[#f0fdf4] flex flex-col justify-between">
 
     <!-- 顶部装饰 -->
     <view class="pt-16 pb-20 px-6"
           style="background:linear-gradient(135deg,#10b981 0%,#059669 100%)">
-      <text class="text-white font-bold block" style="font-size:28px">创建账号 ✨</text>
+      <text class="text-white font-bold block" style="font-size:28px">创建账号</text>
       <text class="text-sm block mt-2" style="color:rgba(255,255,255,.7)">
         加入健康生活，开始您的健康旅程
       </text>
@@ -85,6 +85,22 @@
       </view>
 
     </view>
+    <van-dialog
+      v-model="showSuccessDialog"
+      title="注册成功"
+      message="账号已创建，前往登录开始使用"
+      confirm-button-text="前往登录"
+      confirm-button-color="#10b981"
+      :show-cancel-button="false"
+      @confirm="goLogin"
+    />
+
+    <!-- 底部品牌落款 -->
+    <view class="flex flex-col items-center pb-10 pt-4">
+      <text class="text-sm font-semibold" style="color:var(--primary)">健康生活</text>
+      <text class="text-xs mt-1" style="color:var(--icon-secondary)">记录每一天，成就更好的自己</text>
+    </view>
+
   </view>
 </template>
 
@@ -93,9 +109,13 @@ export default {
   data() {
     return {
       user_info: { username: '', account: '', password: '', age: null, sex: '', email: '' },
+      showSuccessDialog: false,
     }
   },
   methods: {
+    goLogin() {
+      uni.navigateTo({ url: './login' })
+    },
     register() {
       const errMsg = this.verifyInfo()
       if (errMsg) {
@@ -114,10 +134,7 @@ export default {
         header: { 'Content-Type': 'application/x-www-form-urlencoded' },
         success: (res) => {
           if (res.data && res.data.code === 20000) {
-            uni.showModal({
-              title: '注册成功', content: '点击确认前往登录', showCancel: false,
-              success: (r) => { if (r.confirm) uni.navigateTo({ url: './login' }) },
-            })
+            this.showSuccessDialog = true
           } else {
             uni.showToast({ title: res.data?.message || '注册失败，请重试', icon: 'none', duration: 2500 })
           }

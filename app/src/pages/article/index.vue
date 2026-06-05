@@ -5,7 +5,7 @@
     <view class="bg-white px-4 py-3 flex items-center gap-3"
           style="box-shadow:0 1px 4px rgba(0,0,0,.04)">
       <view class="flex-1 flex items-center gap-2 bg-[#f3f4f6] rounded-xl px-3 py-2">
-        <text class="text-[#9ca3af]">🔍</text>
+        <van-icon name="search" size="16" color="var(--icon-secondary)" />
         <input
           class="flex-1 text-sm text-[#374151] bg-transparent"
           :value="inputKey"
@@ -45,7 +45,7 @@
     <!-- 加载失败 -->
     <view v-else-if="hasError" class="flex flex-col items-center justify-center px-8 py-20">
       <view class="w-16 h-16 rounded-2xl bg-[#fff7ed] flex items-center justify-center mb-4">
-        <text style="font-size:32px">📡</text>
+        <van-icon name="warning-o" size="32" color="var(--icon-warning)" />
       </view>
       <text class="text-base font-semibold text-[#374151] mb-2">加载失败</text>
       <text class="text-sm text-[#9ca3af] text-center leading-relaxed mb-6">
@@ -75,7 +75,7 @@
           <view v-else
                 class="flex items-center justify-center bg-[#f0fdf4]"
                 style="height:100px">
-            <text style="font-size:32px">📰</text>
+            <van-icon name="newspaper-o" size="32" color="var(--icon-primary)" />
           </view>
 
           <view class="p-4">
@@ -95,8 +95,7 @@
         </view>
 
         <view v-if="!articleList.length" class="text-center py-16">
-          <text class="text-4xl block mb-3">📭</text>
-          <text class="text-sm text-[#9ca3af]">暂无文章</text>
+          <van-empty description="暂无文章" image-size="80" />
         </view>
       </view>
     </scroll-view>
@@ -160,7 +159,7 @@ export default {
     searchArticle() {
       const key = String(this.inputKey).trim()
       if (!key || /^\d+$/.test(key)) {
-        uni.showToast({ title: '请输入合法关键词', icon: 'error' })
+        uni.showToast({ title: '请输入合法关键词', icon: 'none', duration: 2000 })
         return
       }
       this.loading = true
@@ -172,9 +171,9 @@ export default {
           if (list && list.length) {
             this.articleList  = list
             this.isSearchMode = true
-            uni.showToast({ title: '检索成功', icon: 'success' })
+            uni.showToast({ title: '检索成功', icon: 'none', duration: 1500 })
           } else {
-            uni.showToast({ title: '无相关文章', icon: 'error' })
+            uni.showToast({ title: '无相关文章', icon: 'none', duration: 2000 })
           }
         },
         fail: () => {
@@ -196,7 +195,7 @@ export default {
       if (!contUrl) return
       uni.navigateTo({
         url: `/pages/article/content?contUrl=${encodeURIComponent(contUrl)}&title=${encodeURIComponent(contTitle)}`,
-        fail: () => uni.showToast({ title: '跳转失败', icon: 'error' }),
+        fail: () => uni.showToast({ title: '跳转失败', icon: 'none', duration: 2000 }),
       })
     },
 

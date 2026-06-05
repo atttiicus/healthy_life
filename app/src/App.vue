@@ -46,6 +46,15 @@ export default {
   --primary: #10b981;
   --primary-dark: #059669;
   --bg-page: #f5f7fa;
+
+  /* 图标颜色 token */
+  --icon-primary:   #10b981;
+  --icon-secondary: #9ca3af;
+  --icon-warning:   #ea580c;
+  --icon-danger:    #dc2626;
+  --icon-info:      #2563eb;
+  --icon-purple:    #7c3aed;
+  --icon-amber:     #d97706;
 }
 page {
   background-color: #f5f7fa;

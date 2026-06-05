@@ -2,7 +2,7 @@
   <view class="page pb-6">
     <!-- 通知栏 -->
     <view class="flex items-center gap-2 px-4 py-2 bg-[#fff7ed]">
-      <text class="text-[#ea580c] text-sm">ℹ</text>
+      <van-icon name="info-o" size="16" color="var(--icon-warning)" />
       <text class="text-[#ea580c] text-xs">每日数据需要手动更新才能保证数据准确性哦。</text>
     </view>
 
@@ -97,7 +97,7 @@
         <view class="flex-1 card p-4">
           <view class="flex items-center gap-2 mb-3">
             <view class="w-8 h-8 bg-[#fff7ed] rounded-xl flex items-center justify-center">
-              <text>🏃</text>
+              <van-icon name="todo-list-o" size="18" color="var(--icon-warning)" />
             </view>
             <text class="text-sm font-medium text-[#374151]">步数</text>
           </view>
@@ -113,7 +113,7 @@
         <view class="flex-1 card p-4">
           <view class="flex items-center gap-2 mb-3">
             <view class="w-8 h-8 bg-[#ecfdf5] rounded-xl flex items-center justify-center">
-              <text>⏱</text>
+              <van-icon name="clock-o" size="18" color="var(--icon-primary)" />
             </view>
             <text class="text-sm font-medium text-[#374151]">有氧运动</text>
           </view>
@@ -130,12 +130,15 @@
 
       <!-- 健康建议 -->
       <view v-if="healthAdvice.length" class="card p-4">
-        <text class="sec-title mb-3 block">💡 健康建议</text>
+        <view class="flex items-center gap-2 mb-3">
+          <van-icon name="info-o" size="16" color="var(--icon-primary)" />
+          <text class="sec-title">健康建议</text>
+        </view>
         <view class="flex flex-col gap-2">
           <view v-for="tip in healthAdvice" :key="tip.text"
                 class="flex items-start gap-2 rounded-xl px-3 py-2"
                 :style="{ background: tip.bg }">
-            <text>{{ tip.icon }}</text>
+            <van-icon :name="tip.icon" size="16" :color="tip.color" class="flex-shrink-0 mt-0.5" />
             <text class="text-xs leading-relaxed flex-1" :style="{ color: tip.color }">
               {{ tip.text }}
             </text>
@@ -256,30 +259,30 @@ export default {
       const sleep   = this.currentData.sleepTime
 
       if (calPct > 110)
-        tips.push({ icon: '⚠️', text: '今日卡路里摄入已超标，建议减少高热量食物，适当增加有氧运动。', bg: '#fff7ed', color: '#ea580c' })
+        tips.push({ icon: 'warning-o',   text: '今日卡路里摄入已超标，建议减少高热量食物，适当增加有氧运动。', bg: '#fff7ed', color: 'var(--icon-warning)' })
       else if (calPct < 50 && calPct > 0)
-        tips.push({ icon: '⚡', text: '今日卡路里摄入不足，营养摄入过少不利于健康，请注意合理饮食。', bg: '#fef9c3', color: '#ca8a04' })
+        tips.push({ icon: 'fire-o',      text: '今日卡路里摄入不足，营养摄入过少不利于健康，请注意合理饮食。', bg: '#fef9c3', color: 'var(--icon-amber)' })
       else if (calPct >= 80 && calPct <= 110)
-        tips.push({ icon: '✅', text: '卡路里摄入处于合理范围，继续保持均衡饮食。', bg: '#f0fdf4', color: '#16a34a' })
+        tips.push({ icon: 'good-job-o',     text: '卡路里摄入处于合理范围，继续保持均衡饮食。', bg: '#f0fdf4', color: 'var(--icon-primary)' })
 
       if (stepPct < 60 && this.userPlanData.kilometre)
-        tips.push({ icon: '🏃', text: `今日步数还差 ${Math.max(0, Number(this.userPlanData.kilometre) - (Number(this.currentData.stepNum) || 0))} 步，饭后散步是个好习惯。`, bg: '#fff7ed', color: '#ea580c' })
+        tips.push({ icon: 'todo-list-o', text: `今日步数还差 ${Math.max(0, Number(this.userPlanData.kilometre) - (Number(this.currentData.stepNum) || 0))} 步，饭后散步是个好习惯。`, bg: '#fff7ed', color: 'var(--icon-warning)' })
 
       if (exPct < 50 && this.userPlanData.exerciseTime)
-        tips.push({ icon: '⏱', text: '今日运动时间不足目标的一半，适量运动有助于改善新陈代谢。', bg: '#fef9c3', color: '#ca8a04' })
+        tips.push({ icon: 'clock-o',     text: '今日运动时间不足目标的一半，适量运动有助于改善新陈代谢。', bg: '#fef9c3', color: 'var(--icon-amber)' })
 
       if (!isNaN(bmiVal) && bmiVal >= 25)
-        tips.push({ icon: '⚖️', text: 'BMI 偏高，建议控制饮食总热量并坚持每天运动 30 分钟以上。', bg: '#fef9c3', color: '#ca8a04' })
+        tips.push({ icon: 'balance-o',   text: 'BMI 偏高，建议控制饮食总热量并坚持每天运动 30 分钟以上。', bg: '#fef9c3', color: 'var(--icon-amber)' })
       else if (!isNaN(bmiVal) && bmiVal < 18.5)
-        tips.push({ icon: '🥗', text: 'BMI 偏低，建议适当增加优质蛋白质摄入，如鸡蛋、牛奶、鱼肉等。', bg: '#fef9c3', color: '#ca8a04' })
+        tips.push({ icon: 'hot-o',       text: 'BMI 偏低，建议适当增加优质蛋白质摄入，如鸡蛋、牛奶、鱼肉等。', bg: '#fef9c3', color: 'var(--icon-amber)' })
 
       if (sleep) {
         const [h, m] = sleep.split(':').map(Number)
         const mins = h * 60 + (m || 0)
         if (mins < 360)
-          tips.push({ icon: '😴', text: '昨夜睡眠不足 6 小时，建议今晚 22:30 前入睡，保证充足休息。', bg: '#f5f3ff', color: '#7c3aed' })
+          tips.push({ icon: 'clock-o',   text: '昨夜睡眠不足 6 小时，建议今晚 22:30 前入睡，保证充足休息。', bg: '#f5f3ff', color: 'var(--icon-purple)' })
         else if (mins >= 420 && mins <= 540)
-          tips.push({ icon: '🌙', text: '睡眠时长良好，保持规律作息有助于身心健康。', bg: '#f0fdf4', color: '#16a34a' })
+          tips.push({ icon: 'star-o',    text: '睡眠时长良好，保持规律作息有助于身心健康。', bg: '#f0fdf4', color: 'var(--icon-primary)' })
       }
 
       return tips.slice(0, 3)

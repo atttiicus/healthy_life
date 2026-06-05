@@ -67,7 +67,7 @@
         >
           <view class="flex items-center justify-between mb-2">
             <text class="text-sm font-medium text-[#374151]">{{ item.title }}</text>
-            <text class="text-xl">{{ item.icon }}</text>
+            <van-icon :name="item.icon" size="22" color="var(--icon-secondary)" />
           </view>
           <text class="text-xs text-[#9ca3af]">最近{{ activeTab }}</text>
           <text
@@ -85,7 +85,14 @@
           <text class="sec-title">睡眠质量趋势</text>
           <text class="text-xs text-[#9ca3af]">{{ activeTab }}数据</text>
         </view>
-        <view id="lifeCharts" style="width:100%;height:180px"></view>
+        <view v-if="historyData.length" id="lifeCharts" style="width:100%;height:180px"></view>
+        <view v-else class="flex flex-col items-center justify-center py-6">
+          <van-empty
+            description="暂无睡眠数据"
+            image-size="80"
+          />
+          <text class="text-xs text-[#9ca3af] mt-1">记录今日数据后即可查看趋势</text>
+        </view>
       </view>
 
     </view>
@@ -232,7 +239,7 @@ export default {
 
       return [
         {
-          title: '体重管理', icon: '⚖️',
+          title: '体重管理', icon: 'balance-o',
           direction: wDiff !== null ? (Number(wDiff) <= 0 ? '↓ 低于目标' : `↑ 超出 ${wDiff}kg`) : '暂无数据',
           value: curW ? `${curW} kg` : '—',
           tip: planW ? `目标 ${planW} kg` : '尚未设定目标',
@@ -240,7 +247,7 @@ export default {
           onTap: () => this.showDataReport(),
         },
         {
-          title: '运动锻炼', icon: '🏋️',
+          title: '运动锻炼', icon: 'fire-o',
           direction: exPct >= 100 ? '✓ 已达标' : `达成 ${exPct}%`,
           value: `${exCur} min`,
           tip: `目标 ${exPlan} min`,
@@ -248,7 +255,7 @@ export default {
           onTap: () => this.showDataReport(),
         },
         {
-          title: '睡眠质量', icon: '😴',
+          title: '睡眠质量', icon: 'clock-o',
           direction: sleepDiff !== null
             ? (sleepGood ? '✓ 睡眠达标' : `少 ${Math.abs(sleepDiff)} 分钟`)
             : '暂无数据',
@@ -257,7 +264,7 @@ export default {
           trend: sleepGood ? 'good' : 'bad',
         },
         {
-          title: '热量摄入', icon: '🥗',
+          title: '热量摄入', icon: 'hot-o',
           direction: calGood ? '✓ 摄入适中' : (calPct > 110 ? '⚠ 摄入超标' : '⚠ 摄入不足'),
           value: `${calCur} kcal`,
           tip: `目标 ${calPlan} kcal`,
