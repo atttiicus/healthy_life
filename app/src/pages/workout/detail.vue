@@ -1,5 +1,5 @@
 <template>
-  <view class="min-h-screen bg-[#f5f7fa] pb-8">
+  <view class="min-h-[calc(100vh-44px)] bg-[#f5f7fa] pb-8">
 
     <!-- 加载中 -->
     <view v-if="loading" class="flex items-center justify-center" style="height:100vh">

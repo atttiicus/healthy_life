@@ -27,4 +27,6 @@ export const CODE = {
   planUpdateError: {code: 52001, message: "健康计划更新失败", key: "planUpdateError"},
   /* -------------------------  Workout ------------------------- */
   workoutNotFound: {code: 53000, message: "运动记录不存在", key: "workoutNotFound"},
+  /* -------------------------  Checkin ------------------------- */
+  checkinAlreadyExists: { code: 54000, message: '今日已打卡', key: 'checkinAlreadyExists' },
 }

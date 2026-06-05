@@ -1,5 +1,5 @@
 <template>
-  <view class="min-h-screen bg-[#f5f7fa]">
+  <view class="min-h-[calc(100vh-44px)] bg-[#f5f7fa]">
 
     <!-- 顶部渐变头 -->
     <view class="px-5 pt-10 pb-16"

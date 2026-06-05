@@ -58,6 +58,46 @@
         </view>
       </view>
 
+      <!-- 打卡卡片 -->
+      <view class="card p-4" style="box-shadow:0 2px 8px rgba(0,0,0,.05)">
+        <view class="flex items-center justify-between">
+          <view class="flex items-center gap-3">
+            <view class="w-10 h-10 rounded-xl flex items-center justify-center"
+                  style="background:#fff7ed">
+              <van-icon name="fire-o" size="20" color="#f97316" />
+            </view>
+            <view>
+              <view class="flex items-baseline gap-1">
+                <text class="font-bold text-[#1f2937]" style="font-size:22px">
+                  {{ streakData.streak || 0 }}
+                </text>
+                <text class="text-xs text-[#9ca3af]">天连续打卡</text>
+              </view>
+              <text class="text-xs text-[#9ca3af]">
+                {{ streakData.last_checkin ? '最近：' + streakData.last_checkin : '还未开始打卡' }}
+              </text>
+            </view>
+          </view>
+          <view v-if="todayChecked"
+                class="px-3 py-1.5 rounded-xl flex items-center gap-1"
+                style="background:#f0fdf4">
+            <van-icon name="success" size="14" color="var(--icon-primary)" />
+            <text class="text-xs font-semibold" style="color:var(--icon-primary)">已打卡</text>
+          </view>
+          <view v-else
+                class="px-3 py-1.5 rounded-xl"
+                style="background:#10b981"
+                @tap="doCheckinFromHome">
+            <text class="text-xs font-semibold text-white">今日打卡</text>
+          </view>
+        </view>
+        <view class="mt-3 text-right">
+          <text class="text-xs" style="color:var(--icon-primary)" @tap="goCheckinCalendar">
+            查看打卡日历 →
+          </text>
+        </view>
+      </view>
+
       <!-- 今日卡路里 -->
       <view class="card p-4">
         <view class="flex items-center justify-between mb-3">
@@ -176,12 +216,18 @@ export default {
     return {
       isShowCommonDialog: false,
       currentTime: '',
-      historyData: [],   // 最近 7 天历史数据
+      historyData:    [],
+      streakData:     { streak: 0, last_checkin: null },
+      checkinLoading: false,
     }
   },
   computed: {
     ...mapState(['user', 'currentData', 'userPlanData']),
     ...mapGetters(['healthAdvice']),
+    todayChecked() {
+      if (!this.streakData.last_checkin) return false
+      return this.streakData.last_checkin === dayjs().format('YYYY-MM-DD')
+    },
     foods() {
       if (!this.currentData.foods) return []
       return String(this.currentData.foods).split(',').slice(0, 4).filter(Boolean)
@@ -254,6 +300,9 @@ export default {
   mounted() {
     this.fetchHistoryAndRender()
   },
+  onShow() {
+    this.loadStreak()
+  },
   onLoad() {
     if (JSON.stringify(this.currentData) === '{}' && this.user.uid) {
       uni.request({
@@ -273,6 +322,39 @@ export default {
     ...mapMutations(['setCurrentData']),
     popUpdateDayDataDialog() { this.isShowCommonDialog = true },
     UpdateDialogDayDataState(v) { this.isShowCommonDialog = v },
+    loadStreak() {
+      const token = this.user.token
+      if (!token) return
+      uni.request({
+        url:    '/api/checkin/streak',
+        method: 'GET',
+        header: { token },
+        success: res => { if (res.data?.data) this.streakData = res.data.data },
+      })
+    },
+    doCheckinFromHome() {
+      if (this.checkinLoading) return
+      this.checkinLoading = true
+      uni.request({
+        url:    '/api/checkin/do',
+        method: 'POST',
+        header: { token: this.user.token, 'content-type': 'application/json' },
+        data:   {},
+        success: (res) => {
+          if (res.data?.code === 20000) {
+            uni.showToast({ title: '打卡成功', icon: 'none', duration: 1500 })
+            this.loadStreak()
+          } else {
+            uni.showToast({ title: res.data?.message || '打卡失败', icon: 'none', duration: 2000 })
+          }
+        },
+        fail:     () => uni.showToast({ title: '网络请求失败', icon: 'none', duration: 2000 }),
+        complete: () => { this.checkinLoading = false },
+      })
+    },
+    goCheckinCalendar() {
+      uni.navigateTo({ url: '/pages/checkin/calendar' })
+    },
 
     // 拉取最近 7 天历史数据并渲染图表
     fetchHistoryAndRender() {
