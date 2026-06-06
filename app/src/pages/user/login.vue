@@ -1,5 +1,5 @@
 <template>
-  <view class="min-h-screen bg-[#f0fdf4] flex flex-col justify-between">
+  <view class="min-h-[calc(100vh-44px)] bg-[#f0fdf4] flex flex-col justify-between">
 
     <!-- 顶部装饰 -->
     <view class="pt-16 pb-20 px-6"

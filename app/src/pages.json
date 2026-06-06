@@ -71,6 +71,10 @@
 			"style": {
 				"navigationBarTitleText": "数据修改"
 			}
+		},
+		{
+			"path": "pages/checkin/calendar",
+			"style": { "navigationBarTitleText": "打卡日历" }
 		}
 	],
 	"globalStyle": {

@@ -95,6 +95,45 @@
         </view>
       </view>
 
+      <!-- 体重趋势 -->
+      <view class="card p-4">
+        <view class="flex items-center justify-between mb-3">
+          <text class="sec-title">体重趋势</text>
+          <text class="text-xs text-[#9ca3af]">{{ activeTab }}数据</text>
+        </view>
+        <view v-if="hasWeight" id="lifeChartsWeight" style="width:100%;height:180px"></view>
+        <view v-else class="flex flex-col items-center justify-center py-6">
+          <van-empty description="暂无体重数据" image-size="80" />
+          <text class="text-xs text-[#9ca3af] mt-1">记录今日体重后即可查看趋势</text>
+        </view>
+      </view>
+
+      <!-- 步数趋势 -->
+      <view class="card p-4">
+        <view class="flex items-center justify-between mb-3">
+          <text class="sec-title">步数趋势</text>
+          <text class="text-xs text-[#9ca3af]">{{ activeTab }}数据</text>
+        </view>
+        <view v-if="hasStep" id="lifeChartsStep" style="width:100%;height:180px"></view>
+        <view v-else class="flex flex-col items-center justify-center py-6">
+          <van-empty description="暂无步数数据" image-size="80" />
+          <text class="text-xs text-[#9ca3af] mt-1">记录今日步数后即可查看趋势</text>
+        </view>
+      </view>
+
+      <!-- 热量摄入趋势 -->
+      <view class="card p-4">
+        <view class="flex items-center justify-between mb-3">
+          <text class="sec-title">热量摄入趋势</text>
+          <text class="text-xs text-[#9ca3af]">{{ activeTab }}数据</text>
+        </view>
+        <view v-if="hasCalorie" id="lifeChartsCalorie" style="width:100%;height:180px"></view>
+        <view v-else class="flex flex-col items-center justify-center py-6">
+          <van-empty description="暂无热量数据" image-size="80" />
+          <text class="text-xs text-[#9ca3af] mt-1">记录今日热量后即可查看趋势</text>
+        </view>
+      </view>
+
     </view>
 
     <!-- 报告弹窗 -->
@@ -127,13 +166,19 @@ const BASE = '2024-01-01 '
 const TAB_DAYS = { 周报: 7, 月报: 30, 年报: 90 }
 
 export default {
+  created() {
+    // ECharts 实例为非响应式普通属性，避免 Vue 2 深度观察
+    this._chart        = null
+    this._chartWeight  = null
+    this._chartStep    = null
+    this._chartCalorie = null
+  },
   data() {
     return {
       isShowDia: false,
       currentRate: 0,
       activeTab: '周报',
       tabs: ['周报', '月报', '年报'],
-      _chart: null,
       historyData: [],
     }
   },
@@ -141,7 +186,10 @@ export default {
     ...mapState(['currentData', 'userPlanData', 'user']),
     ...mapGetters(['healthScore', 'scoreBadge']),
 
-    text() { return this.currentRate.toFixed(0) },
+    text()       { return this.currentRate.toFixed(0) },
+    hasWeight()  { return this.historyData.some(r => r.weight  && Number(r.weight)  > 0) },
+    hasStep()    { return this.historyData.some(r => r.stepNum && Number(r.stepNum) > 0) },
+    hasCalorie() { return this.historyData.some(r => r.calorie && Number(r.calorie) > 0) },
 
     // 健康数据卡片（基于真实数据计算进度）
     healthItems() {
@@ -235,7 +283,7 @@ export default {
   methods: {
     fetchHistory() {
       const { token } = this.user
-      if (!token) { this.$nextTick(() => this.renderChart()); return }
+      if (!token) { this.$nextTick(() => this.renderAllCharts()); return }
       const days = TAB_DAYS[this.activeTab]
       uni.request({
         url: `/api/data/history?days=${days}`,
@@ -243,17 +291,77 @@ export default {
         header: { token },
         success: (res) => {
           this.historyData = res.data?.data || []
-          this.$nextTick(() => this.renderChart())
+          this.$nextTick(() => this.renderAllCharts())
         },
         fail: () => {
           this.historyData = []
-          this.$nextTick(() => this.renderChart())
+          this.$nextTick(() => this.renderAllCharts())
         },
       })
     },
     onTabChange(tab) {
       this.activeTab = tab
       this.fetchHistory()
+    },
+    renderAllCharts() {
+      this.renderChart()
+      if (this.hasWeight) {
+        this.renderNumericChart(
+          'lifeChartsWeight', '_chartWeight',
+          this.historyData.map(r => r.weight ? Number(r.weight) : null),
+          'kg'
+        )
+      }
+      if (this.hasStep) {
+        this.renderNumericChart(
+          'lifeChartsStep', '_chartStep',
+          this.historyData.map(r => r.stepNum ? Number(r.stepNum) : null),
+          '步'
+        )
+      }
+      if (this.hasCalorie) {
+        this.renderNumericChart(
+          'lifeChartsCalorie', '_chartCalorie',
+          this.historyData.map(r => r.calorie ? Number(r.calorie) : null),
+          'kcal'
+        )
+      }
+    },
+    renderNumericChart(elId, chartKey, yData, unit) {
+      const el = document.getElementById(elId)
+      if (!el) return
+      if (!this[chartKey]) this[chartKey] = this.$echarts.init(el)
+      const xData = this.historyData.map(r => dayjs(r.created_at).format('MM-DD'))
+      this[chartKey].setOption({
+        grid: { top: 8, bottom: 28, left: 8, right: 12, containLabel: true },
+        xAxis: {
+          type: 'category',
+          data: xData,
+          boundaryGap: false,
+          axisLine: { lineStyle: { color: '#f3f4f6' } },
+          axisTick: { show: false },
+          axisLabel: { color: '#9ca3af', fontSize: 10 },
+        },
+        yAxis: {
+          type: 'value',
+          axisLabel: {
+            color: '#9ca3af', fontSize: 10,
+            formatter: v => v + unit,
+          },
+          splitLine: { lineStyle: { color: '#f3f4f6', type: 'dashed' } },
+        },
+        series: [{
+          data: yData,
+          type: 'line',
+          smooth: true,
+          symbol: 'circle',
+          symbolSize: 6,
+          connectNulls: false,
+          lineStyle: { color: '#10b981', width: 2.5 },
+          itemStyle: { color: '#10b981', borderColor: '#fff', borderWidth: 2 },
+          areaStyle: { color: 'rgba(16,185,129,.08)' },
+        }],
+      }, true)
     },
     showDataReport() { this.isShowDia = true },
     renderChart() {

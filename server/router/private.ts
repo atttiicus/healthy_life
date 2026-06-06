@@ -10,6 +10,7 @@ const project = {
   article: "/article",
   plan:    "/plan",
   workout: "/workout",
+  checkin: "/checkin",
 }
 
 router.use(jwtMiddlewareDeal)
@@ -411,5 +412,99 @@ router.get(project.workout  + '/stats', controllers.workout_workout.getWorkoutSt
  */
 router.get(project.workout    + '/:wid',  controllers.workout_workout.getWorkoutDetail)
 router.delete(project.workout + '/:wid',  controllers.workout_workout.deleteWorkout)
+
+// ─── 打卡系统 ─────────────────────────────────────────────────────────────────
+
+/**
+ * @swagger
+ * /checkin/do:
+ *   post:
+ *     tags: [打卡系统]
+ *     summary: 今日打卡（幂等：重复打卡返回已有记录）
+ *     security:
+ *       - UserToken: []
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               note: { type: string, description: "打卡备注（选填）" }
+ *     responses:
+ *       200:
+ *         description: 打卡成功或返回今日已有记录
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiOk'
+ *                 - properties:
+ *                     data:
+ *                       type: object
+ *                       properties:
+ *                         cid:          { type: integer }
+ *                         uid:          { type: integer }
+ *                         checkin_date: { type: string, format: date }
+ *                         note:         { type: string, nullable: true }
+ */
+router.post(project.checkin + '/do',      controllers.checkin_checkin.doCheckin)
+
+/**
+ * @swagger
+ * /checkin/calendar:
+ *   get:
+ *     tags: [打卡系统]
+ *     summary: 获取某月已打卡日期列表
+ *     security:
+ *       - UserToken: []
+ *     parameters:
+ *       - name: year
+ *         in: query
+ *         required: true
+ *         schema: { type: integer, example: 2026 }
+ *       - name: month
+ *         in: query
+ *         required: true
+ *         schema: { type: integer, example: 6, minimum: 1, maximum: 12 }
+ *     responses:
+ *       200:
+ *         description: 该月打卡日期数组
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiOk'
+ *                 - properties:
+ *                     data:
+ *                       type: array
+ *                       items: { type: string, format: date }
+ *                       example: ["2026-06-01","2026-06-03"]
+ */
+router.get(project.checkin + '/calendar', controllers.checkin_checkin.getCalendar)
+
+/**
+ * @swagger
+ * /checkin/streak:
+ *   get:
+ *     tags: [打卡系统]
+ *     summary: 获取连续打卡天数（截至最近一次打卡，今天未打卡不清零）
+ *     security:
+ *       - UserToken: []
+ *     responses:
+ *       200:
+ *         description: 连续打卡天数及最近打卡日期
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiOk'
+ *                 - properties:
+ *                     data:
+ *                       type: object
+ *                       properties:
+ *                         streak:       { type: integer, example: 7 }
+ *                         last_checkin: { type: string, format: date, nullable: true }
+ */
+router.get(project.checkin + '/streak',   controllers.checkin_checkin.getStreak)
 
 export default router
