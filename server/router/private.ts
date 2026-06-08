@@ -9,9 +9,10 @@ const project = {
   data:    "/data",
   article: "/article",
   plan:    "/plan",
-  workout: "/workout",
-  checkin: "/checkin",
-  habit:   "/habit",
+  workout:     "/workout",
+  checkin:     "/checkin",
+  habit:       "/habit",
+  achievement: "/achievement",
 }
 
 router.use(jwtMiddlewareDeal)
@@ -604,5 +605,54 @@ router.post(project.habit + '/create',      controllers.habit_habit.createHabitA
  */
 router.post(project.habit + '/:hid/check', controllers.habit_habit.checkHabitApi)
 router.delete(project.habit + '/:hid',     controllers.habit_habit.deleteHabitApi)
+
+// ─── 成就系统 ──────────────────────────────────────────────────────────────────
+
+/**
+ * @swagger
+ * /achievement/list:
+ *   get:
+ *     tags: [成就系统]
+ *     summary: 获取全部成就（含已解锁状态，自动触发解锁检查）
+ *     security:
+ *       - UserToken: []
+ *     responses:
+ *       200:
+ *         description: 成就列表
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiOk'
+ *                 - properties:
+ *                     data:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           id:             { type: integer }
+ *                           code:           { type: string }
+ *                           title:          { type: string }
+ *                           description:    { type: string }
+ *                           icon:           { type: string }
+ *                           condition_type: { type: string }
+ *                           condition_value: { type: integer }
+ *                           unlocked:       { type: boolean }
+ *                           unlocked_at:    { type: string, nullable: true }
+ * /achievement/mine:
+ *   get:
+ *     tags: [成就系统]
+ *     summary: 获取我已解锁的成就
+ *     security:
+ *       - UserToken: []
+ *     responses:
+ *       200:
+ *         description: 已解锁成就列表
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/ApiOk' }
+ */
+router.get(project.achievement + '/list', controllers.achievement_achievement.getAchievementListApi)
+router.get(project.achievement + '/mine', controllers.achievement_achievement.getMyAchievementsApi)
 
 export default router

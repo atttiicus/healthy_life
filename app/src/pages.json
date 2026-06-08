@@ -79,6 +79,10 @@
 		{
 			"path": "pages/habit/index",
 			"style": { "navigationBarTitleText": "习惯养成" }
+		},
+		{
+			"path": "pages/achievement/index",
+			"style": { "navigationBarTitleText": "我的成就" }
 		}
 	],
 	"globalStyle": {
