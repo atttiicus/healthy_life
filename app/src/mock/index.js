@@ -25,7 +25,7 @@ export const MOCK_PLAN = {
   uid: 1,
   weight: '65',
   exerciseTime: '40',
-  kilometre: '10000',
+  step_target: 10000,
   calorie: '2000',
   sleepTime: '07:30',
   bloodPressure: '120/80',

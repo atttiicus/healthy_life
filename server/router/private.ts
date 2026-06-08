@@ -13,6 +13,7 @@ const project = {
   checkin:     "/checkin",
   habit:       "/habit",
   achievement: "/achievement",
+  mood:        "/mood",
 }
 
 router.use(jwtMiddlewareDeal)
@@ -271,7 +272,7 @@ router.get(project.plan+"/get", controllers.plan_plan.getPlanDataApi)
  *               calorie:       { type: string }
  *               sleepTime:     { type: string }
  *               exerciseTime:  { type: string }
- *               kilometre:     { type: string, description: "目标步数" }
+ *               step_target:   { type: integer, description: "目标步数" }
  *     responses:
  *       200:
  *         description: 操作成功
@@ -687,5 +688,64 @@ router.delete(project.habit + '/:hid',     controllers.habit_habit.deleteHabitAp
  */
 router.get(project.achievement + '/list', controllers.achievement_achievement.getAchievementListApi)
 router.get(project.achievement + '/mine', controllers.achievement_achievement.getMyAchievementsApi)
+
+// ─── 情绪记录 ──────────────────────────────────────────────────────────────────
+
+/**
+ * @swagger
+ * /mood/log:
+ *   post:
+ *     tags: [情绪记录]
+ *     summary: 记录今日心情（当天已有记录则更新）
+ *     security:
+ *       - UserToken: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [mood]
+ *             properties:
+ *               mood: { type: integer, minimum: 1, maximum: 5, description: "1=很差 5=很好" }
+ *               note: { type: string }
+ *     responses:
+ *       200:
+ *         description: 记录成功
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/ApiOk' }
+ * /mood/today:
+ *   get:
+ *     tags: [情绪记录]
+ *     summary: 获取今日心情记录
+ *     security:
+ *       - UserToken: []
+ *     responses:
+ *       200:
+ *         description: 今日心情（未记录时 data 为 null）
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/ApiOk' }
+ * /mood/history:
+ *   get:
+ *     tags: [情绪记录]
+ *     summary: 获取最近 N 天心情历史
+ *     security:
+ *       - UserToken: []
+ *     parameters:
+ *       - name: days
+ *         in: query
+ *         schema: { type: integer, default: 30 }
+ *     responses:
+ *       200:
+ *         description: 心情历史列表
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/ApiOk' }
+ */
+router.post(project.mood + '/log',     controllers.mood_mood.logMoodApi)
+router.get(project.mood  + '/today',   controllers.mood_mood.getTodayMoodApi)
+router.get(project.mood  + '/history', controllers.mood_mood.getMoodHistoryApi)
 
 export default router

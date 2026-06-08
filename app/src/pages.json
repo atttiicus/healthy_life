@@ -87,6 +87,10 @@
 		{
 			"path": "pages/calendar/index",
 			"style": { "navigationBarTitleText": "健康日历" }
+		},
+		{
+			"path": "pages/mood/index",
+			"style": { "navigationBarTitleText": "心情日记" }
 		}
 	],
 	"globalStyle": {

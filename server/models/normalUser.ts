@@ -43,12 +43,12 @@ NormalUser.init({
   height: {
     type: DataTypes.STRING,
     allowNull: true,
-    comment: "用户身高"
+    comment: "用户身高（cm）",
   },
   weight: {
     type: DataTypes.STRING,
     allowNull: true,
-    comment: "用户体重"
+    comment: "用户体重（kg）",
   },
   user_tag: {
     type: DataTypes.STRING,

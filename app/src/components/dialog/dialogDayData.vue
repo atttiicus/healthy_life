@@ -125,7 +125,7 @@ export default {
       return [
         { key: 'weight',        icon: 'balance-o',   label: '体重',     placeholder: '今日体重 (kg)',     plan: (this.userPlanData.weight       || '—') + ' KG'  },
         { key: 'calorie',       icon: 'fire-o',      label: '卡路里',   placeholder: '今日摄入卡路里(总)', plan: (this.userPlanData.calorie      || '—') + ' 卡'  },
-        { key: 'step_num',      icon: 'todo-list-o', label: '步数',     placeholder: '今日运动步数',       plan: (this.userPlanData.kilometre    || '—') + ' 步'  },
+        { key: 'step_num',      icon: 'todo-list-o', label: '步数',     placeholder: '今日运动步数',       plan: (this.userPlanData.step_target    || '—') + ' 步'  },
         { key: 'exercise_time', icon: 'clock-o',     label: '有氧运动', placeholder: '有氧运动时长(分钟)',  plan: (this.userPlanData.exerciseTime || '—') + ' min' },
         { key: 'sleep_time',    icon: 'moon-o',      label: '睡眠时长', placeholder: '格式 HH:MM',  type: 'text', plan: this.userPlanData.sleepTime || '—' },
       ]

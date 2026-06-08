@@ -24,37 +24,37 @@ Plan.init({
     bmi: {
         type: DataTypes.STRING,
         allowNull: true,
-        comment: "目标计划 BMI"
+        comment: "目标计划 BMI",
     },
     weight: {
         type: DataTypes.STRING,
         allowNull: true,
-        comment: "目标计划 体重"
+        comment: "目标计划 体重（kg）",
     },
     heartRate: {
         type: DataTypes.STRING,
         allowNull: true,
-        comment: "目标计划 心率"
+        comment: "目标计划 心率（bpm）",
     },
     calorie: {
         type: DataTypes.STRING,
         allowNull: true,
-        comment: "目标计划 卡路里"
+        comment: "目标计划 卡路里（kcal）",
     },
-    sleepTime:{
-        type:DataTypes.STRING,
+    sleepTime: {
+        type: DataTypes.STRING,
         allowNull: true,
-        comment: "目标计划 睡眠时间"
+        comment: "目标计划 睡眠时间（HH:MM）",
     },
     exerciseTime: {
         type: DataTypes.STRING,
         allowNull: true,
-        comment: "目标计划 锻炼时间"
+        comment: "目标计划 锻炼时间（min）",
     },
-    kilometre: {
-        type: DataTypes.STRING,
+    step_target: {
+        type: DataTypes.INTEGER,
         allowNull: true,
-        comment: "目标计划 步数"
+        comment: "目标计划 步数目标（原 kilometre）",
     },
     is_del: {
         type: DataTypes.INTEGER.UNSIGNED,
@@ -65,7 +65,10 @@ Plan.init({
 },{
     sequelize,
     modelName: "plan",
-    freezeTableName: true
+    freezeTableName: true,
+    indexes: [
+        { fields: ['uid'] },
+    ],
 })
 
 export default Plan

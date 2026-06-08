@@ -143,7 +143,7 @@
           </view>
           <text class="text-xl font-bold text-[#1f2937]">{{ currentData.stepNum || 0 }}</text>
           <text class="text-xs text-[#9ca3af] block mb-2">
-            / {{ userPlanData.kilometre || '--' }} 步
+            / {{ userPlanData.step_target || '--' }} 步
           </text>
           <view class="h-1.5 bg-[#fff7ed] rounded-full overflow-hidden">
             <view class="h-1.5 bg-[#f97316] rounded-full"
@@ -245,7 +245,7 @@ export default {
     },
     stepWidthPct() {
       const curr = Number(this.currentData.stepNum) || 0
-      const target = Number(this.userPlanData.kilometre) || 0
+      const target = Number(this.userPlanData.step_target) || 0
       if (!target) return '0%'
       return Math.min(100, Math.round(curr / target * 100)) + '%'
     },
