@@ -82,6 +82,20 @@ export const getDayDataHistoryService = (uid: number, days = 7) => {
 }
 
 /**
+ * 查询用户某月的全部健康数据（日历视图使用）
+ */
+export const getDayDataByMonthService = (uid: number, year: number, month: number) => {
+  const prefix = `${year}-${String(month).padStart(2, '0')}`
+  const start  = dayjs(`${prefix}-01`).startOf('month').format('YYYY-MM-DD HH:mm:ss')
+  const end    = dayjs(`${prefix}-01`).endOf('month').format('YYYY-MM-DD HH:mm:ss')
+  return DayData.findAll({
+    where: { uid, is_del: 0, created_at: { [Op.between]: [start, end] } },
+    attributes: { exclude: ['is_del'] },
+    order: [['created_at', 'ASC']],
+  })
+}
+
+/**
  * 传入 did 删除对应日数据
  * @param did {number} 数据id
  * @return 数据库修改信息

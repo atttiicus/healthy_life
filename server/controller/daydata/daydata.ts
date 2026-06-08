@@ -1,6 +1,6 @@
 import {Context, Next} from "koa";
 import {CODE} from "../../config/code";
-import { createDayDataService, getDayDataService, getDayDataHistoryService, updateDayDataService } from '../../services/data/data'
+import { createDayDataService, getDayDataService, getDayDataHistoryService, updateDayDataService, getDayDataByMonthService } from '../../services/data/data'
 
 /**
  * 添加一条每日数据, 需要传入用户的id, 和收集的数据
@@ -42,6 +42,16 @@ export const getDayDataHistory = async (ctx: Context, next: Next) => {
   const { days } = ctx.request.query
 
   const list = await getDayDataHistoryService(uid, Number(days) || 7)
+  ctx.body = list.map(r => r.dataValues)
+  return next()
+}
+
+export const getDayDataByMonth = async (ctx: Context, next: Next) => {
+  const uid = ctx.userId
+  const { year, month } = ctx.request.query
+  if (!year || !month) throw CODE.missingParameters
+
+  const list = await getDayDataByMonthService(uid, Number(year), Number(month))
   ctx.body = list.map(r => r.dataValues)
   return next()
 }

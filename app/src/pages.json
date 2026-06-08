@@ -83,6 +83,10 @@
 		{
 			"path": "pages/achievement/index",
 			"style": { "navigationBarTitleText": "我的成就" }
+		},
+		{
+			"path": "pages/calendar/index",
+			"style": { "navigationBarTitleText": "健康日历" }
 		}
 	],
 	"globalStyle": {

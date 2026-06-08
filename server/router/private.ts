@@ -193,6 +193,39 @@ router.get(project.data+"/find",    controllers.daydata_daydata.getCurrentDayDat
  */
 router.get(project.data+"/history", controllers.daydata_daydata.getDayDataHistory)
 
+/**
+ * @swagger
+ * /data/month:
+ *   get:
+ *     tags: [健康数据]
+ *     summary: 获取某月全部健康记录（日历视图）
+ *     security:
+ *       - UserToken: []
+ *     parameters:
+ *       - name: year
+ *         in: query
+ *         required: true
+ *         schema: { type: integer, example: 2026 }
+ *       - name: month
+ *         in: query
+ *         required: true
+ *         schema: { type: integer, example: 6 }
+ *     responses:
+ *       200:
+ *         description: 该月健康数据列表
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiOk'
+ *                 - properties:
+ *                     data:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/DayData'
+ */
+router.get(project.data+"/month", controllers.daydata_daydata.getDayDataByMonth)
+
 // ─── 健康计划 ─────────────────────────────────────────────────────────────────
 
 /**
