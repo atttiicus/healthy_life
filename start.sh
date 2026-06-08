@@ -65,18 +65,35 @@ if [[ "$MODE" == "dev" ]]; then
   ensure_deps "$ROOT/app"    "npm"
 
   echo ""
-  s_log  "Starting backend   (nodemon / ts-node)..."
-  ad_log "Starting admin     (vite dev)..."
-  ap_log "Starting app       (uni-app h5 dev)..."
-  echo ""
 
-  # 启动三个服务，各自在子 shell 中运行，输出带颜色前缀
+  # ① 先启动后端
+  s_log "Starting backend (nodemon / ts-node)..."
   (cd "$ROOT/server" && NODE_ENV=development pnpm run dev 2>&1 | prefix_log "[server]" "$CYAN") &
   SERVER_PID=$!
 
+  # ② 等待后端监听 :2233（最多 60 秒）
+  s_log "等待后端在 ${CYAN}:2233${R} 就绪..."
+  SERVER_READY=0
+  for i in $(seq 1 60); do
+    if (echo > /dev/tcp/localhost/2233) 2>/dev/null; then
+      s_log "${GREEN}✓ 后端已就绪（约 ${i}s）${R}"
+      SERVER_READY=1
+      break
+    fi
+    sleep 1
+  done
+  if [[ $SERVER_READY -eq 0 ]]; then
+    s_log "${YELLOW}⚠ 等待超时，继续启动前端（建议检查后端日志）${R}"
+  fi
+
+  echo ""
+
+  # ③ 后端就绪后再启动中台和小程序
+  ad_log "Starting admin (vite dev)..."
   (cd "$ROOT/admin"  && npm run dev 2>&1 | prefix_log "[admin]  " "$MAGENTA") &
   ADMIN_PID=$!
 
+  ap_log "Starting app (uni-app h5 dev)..."
   (cd "$ROOT/app"    && npm run dev:h5 2>&1 | prefix_log "[app]   " "$BLUE") &
   APP_PID=$!
 

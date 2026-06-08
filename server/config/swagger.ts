@@ -29,8 +29,8 @@ const options: swaggerJsdoc.Options = {
           },
         },
         UserInfo: { 
-          type: 'object',
-          properties: {
+            type: 'object',
+            properties: {
             uid:       { type: 'integer' },
             account:   { type: 'string' },
             user_name: { type: 'string' },
