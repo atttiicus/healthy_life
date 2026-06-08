@@ -11,6 +11,7 @@ const project = {
   plan:    "/plan",
   workout: "/workout",
   checkin: "/checkin",
+  habit:   "/habit",
 }
 
 router.use(jwtMiddlewareDeal)
@@ -506,5 +507,102 @@ router.get(project.checkin + '/calendar', controllers.checkin_checkin.getCalenda
  *                         last_checkin: { type: string, format: date, nullable: true }
  */
 router.get(project.checkin + '/streak',   controllers.checkin_checkin.getStreak)
+
+// ─── 习惯养成 ──────────────────────────────────────────────────────────────────
+
+/**
+ * @swagger
+ * /habit/list:
+ *   get:
+ *     tags: [习惯养成]
+ *     summary: 获取习惯列表（含今日是否已打卡、累计完成天数）
+ *     security:
+ *       - UserToken: []
+ *     responses:
+ *       200:
+ *         description: 习惯列表
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiOk'
+ *                 - properties:
+ *                     data:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           hid:           { type: integer }
+ *                           title:         { type: string }
+ *                           icon:          { type: string }
+ *                           target_days:   { type: integer }
+ *                           checked_today: { type: boolean }
+ *                           total_days:    { type: integer }
+ * /habit/create:
+ *   post:
+ *     tags: [习惯养成]
+ *     summary: 创建新习惯
+ *     security:
+ *       - UserToken: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [title]
+ *             properties:
+ *               title:       { type: string }
+ *               icon:        { type: string, example: "star-o" }
+ *               target_days: { type: integer, example: 21 }
+ *     responses:
+ *       200:
+ *         description: 创建成功
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/ApiOk' }
+ */
+router.get(project.habit + '/list',         controllers.habit_habit.getHabitListApi)
+router.post(project.habit + '/create',      controllers.habit_habit.createHabitApi)
+
+/**
+ * @swagger
+ * /habit/{hid}/check:
+ *   post:
+ *     tags: [习惯养成]
+ *     summary: 今日打卡（幂等，重复调用不报错）
+ *     security:
+ *       - UserToken: []
+ *     parameters:
+ *       - name: hid
+ *         in: path
+ *         required: true
+ *         schema: { type: integer }
+ *     responses:
+ *       200:
+ *         description: 打卡成功
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/ApiOk' }
+ * /habit/{hid}:
+ *   delete:
+ *     tags: [习惯养成]
+ *     summary: 删除习惯
+ *     security:
+ *       - UserToken: []
+ *     parameters:
+ *       - name: hid
+ *         in: path
+ *         required: true
+ *         schema: { type: integer }
+ *     responses:
+ *       200:
+ *         description: 删除成功
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/ApiOk' }
+ */
+router.post(project.habit + '/:hid/check', controllers.habit_habit.checkHabitApi)
+router.delete(project.habit + '/:hid',     controllers.habit_habit.deleteHabitApi)
 
 export default router

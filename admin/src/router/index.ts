@@ -17,6 +17,7 @@ const router = createRouter({
         { path: 'dashboard', component: () => import('../views/DashboardView.vue') },
         { path: 'users', component: () => import('../views/UsersView.vue') },
         { path: 'articles', component: () => import('../views/ArticlesView.vue') },
+        { path: 'announcements', component: () => import('../views/AnnouncementsView.vue') },
       ],
     },
     { path: '/:pathMatch(.*)*', redirect: '/' },

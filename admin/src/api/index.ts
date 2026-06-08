@@ -51,3 +51,14 @@ export const updateArticle = (aid: number, data: Record<string, unknown>) =>
   request.put(`/admin/manage/articles/${aid}`, data)
 
 export const deleteArticle = (aid: number) => request.delete(`/admin/manage/articles/${aid}`)
+
+export const getAnnouncementList = (params: { page: number; limit: number }) =>
+  request.get('/admin/manage/announcements', { params })
+
+export const createAnnouncement = (data: Record<string, unknown>) =>
+  request.post('/admin/manage/announcements', data)
+
+export const updateAnnouncement = (id: number, data: Record<string, unknown>) =>
+  request.put(`/admin/manage/announcements/${id}`, data)
+
+export const deleteAnnouncement = (id: number) => request.delete(`/admin/manage/announcements/${id}`)

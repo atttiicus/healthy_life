@@ -208,4 +208,98 @@ router.post('/admin/manage/articles', controllers.admin_articles_articles.create
 router.put('/admin/manage/articles/:aid', controllers.admin_articles_articles.updateArticleApi)
 router.delete('/admin/manage/articles/:aid', controllers.admin_articles_articles.deleteArticleApi)
 
+// ─── 公告管理 ─────────────────────────────────────────────────────────────────
+
+/**
+ * @swagger
+ * /admin/manage/announcements:
+ *   get:
+ *     tags: [管理员-公告管理]
+ *     summary: 获取公告列表（分页）
+ *     security:
+ *       - AdminToken: []
+ *     parameters:
+ *       - name: page
+ *         in: query
+ *         schema: { type: integer, default: 1 }
+ *       - name: limit
+ *         in: query
+ *         schema: { type: integer, default: 10 }
+ *     responses:
+ *       200:
+ *         description: 公告列表
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/ApiOk' }
+ *   post:
+ *     tags: [管理员-公告管理]
+ *     summary: 创建公告
+ *     security:
+ *       - AdminToken: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [title, content]
+ *             properties:
+ *               title:     { type: string }
+ *               content:   { type: string }
+ *               tag:       { type: string, enum: [NEW, FIX, INFO] }
+ *               author:    { type: string }
+ *               is_active: { type: boolean }
+ *     responses:
+ *       200:
+ *         description: 创建成功
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/ApiOk' }
+ */
+router.get('/admin/manage/announcements', controllers.admin_announcements_announcements.getAnnouncementListApi)
+router.post('/admin/manage/announcements', controllers.admin_announcements_announcements.createAnnouncementApi)
+
+/**
+ * @swagger
+ * /admin/manage/announcements/{id}:
+ *   put:
+ *     tags: [管理员-公告管理]
+ *     summary: 更新公告
+ *     security:
+ *       - AdminToken: []
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema: { type: integer }
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema: { type: object }
+ *     responses:
+ *       200:
+ *         description: 更新成功
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/ApiOk' }
+ *   delete:
+ *     tags: [管理员-公告管理]
+ *     summary: 删除公告
+ *     security:
+ *       - AdminToken: []
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema: { type: integer }
+ *     responses:
+ *       200:
+ *         description: 删除成功
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/ApiOk' }
+ */
+router.put('/admin/manage/announcements/:id', controllers.admin_announcements_announcements.updateAnnouncementApi)
+router.delete('/admin/manage/announcements/:id', controllers.admin_announcements_announcements.deleteAnnouncementApi)
+
 export default router

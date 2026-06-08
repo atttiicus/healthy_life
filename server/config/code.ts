@@ -29,4 +29,6 @@ export const CODE = {
   workoutNotFound: {code: 53000, message: "运动记录不存在", key: "workoutNotFound"},
   /* -------------------------  Checkin ------------------------- */
   checkinAlreadyExists: { code: 54000, message: '今日已打卡', key: 'checkinAlreadyExists' },
+  /* -------------------------  Habit ------------------------- */
+  habitNotFound: { code: 55000, message: '习惯不存在', key: 'habitNotFound' },
 }
