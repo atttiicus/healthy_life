@@ -62,3 +62,6 @@ export const updateAnnouncement = (id: number, data: Record<string, unknown>) =>
   request.put(`/admin/manage/announcements/${id}`, data)
 
 export const deleteAnnouncement = (id: number) => request.delete(`/admin/manage/announcements/${id}`)
+
+export const getUserHealthData = (uid: number, params: { page: number; limit: number }) =>
+  request.get(`/admin/manage/users/${uid}/data`, { params })

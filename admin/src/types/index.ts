@@ -37,6 +37,18 @@ export interface Stats {
   dataCount: number
 }
 
+export interface DayData {
+  did: number
+  uid: number
+  weight?: string
+  calorie?: number
+  sleepTime?: string
+  stepNum?: number
+  exerciseTime?: string
+  foods?: string
+  created_at: string
+}
+
 export interface Announcement {
   id: number
   title: string

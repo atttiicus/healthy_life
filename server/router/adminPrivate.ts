@@ -106,6 +106,34 @@ router.get('/admin/manage/users', controllers.admin_users_users.getUserListApi)
 router.put('/admin/manage/users/:uid', controllers.admin_users_users.updateUserApi)
 router.delete('/admin/manage/users/:uid', controllers.admin_users_users.deleteUserApi)
 
+/**
+ * @swagger
+ * /admin/manage/users/{uid}/data:
+ *   get:
+ *     tags: [管理员-用户管理]
+ *     summary: 查看指定用户的健康数据记录（分页）
+ *     security:
+ *       - AdminToken: []
+ *     parameters:
+ *       - name: uid
+ *         in: path
+ *         required: true
+ *         schema: { type: integer }
+ *       - name: page
+ *         in: query
+ *         schema: { type: integer, default: 1 }
+ *       - name: limit
+ *         in: query
+ *         schema: { type: integer, default: 20 }
+ *     responses:
+ *       200:
+ *         description: 健康数据列表（分页）
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/ApiOk' }
+ */
+router.get('/admin/manage/users/:uid/data', controllers.admin_users_users.getUserHealthDataApi)
+
 // ─── 文章管理 ─────────────────────────────────────────────────────────────────
 
 /**

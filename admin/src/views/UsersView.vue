@@ -24,8 +24,11 @@
       <el-table-column label="注册时间" width="175">
         <template #default="{ row }">{{ formatDate(row.created_at) }}</template>
       </el-table-column>
-      <el-table-column label="操作" width="90" fixed="right">
+      <el-table-column label="操作" width="150" fixed="right">
         <template #default="{ row }">
+          <el-button type="primary" size="small" link @click="viewHealthData(row.uid)">
+            健康数据
+          </el-button>
           <el-popconfirm
             title="确认删除该用户？此操作不可恢复。"
             @confirm="handleDelete(row.uid)"
@@ -52,9 +55,12 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { getUserList, deleteUser } from '../api'
 import type { User } from '../types'
+
+const router = useRouter()
 
 const loading = ref(false)
 const list = ref<User[]>([])
@@ -88,6 +94,8 @@ const handleDelete = async (uid: number) => {
   ElMessage.success('删除成功')
   loadData()
 }
+
+const viewHealthData = (uid: number) => router.push(`/users/${uid}/data`)
 
 const formatDate = (date: string) => (date ? date.slice(0, 19).replace('T', ' ') : '-')
 

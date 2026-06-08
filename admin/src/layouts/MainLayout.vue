@@ -68,6 +68,7 @@ const pageTitle = computed(() => {
     '/articles': '文章管理',
     '/announcements': '公告管理',
   }
+  if (/^\/users\/\d+\/data$/.test(route.path)) return '用户健康数据'
   return map[route.path] || ''
 })
 
