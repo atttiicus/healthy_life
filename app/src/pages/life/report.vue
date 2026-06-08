@@ -142,7 +142,7 @@ export default {
       })
 
       const stepCur  = Number(cd.stepNum) || 0
-      const stepPlan = Number(pd.kilometre) || 0
+      const stepPlan = Number(pd.step_target) || 0
       const stepPct  = stepPlan ? Math.min(100, Math.round(stepCur / stepPlan * 100)) : 0
       items.push({
         label: '今日步数', icon: 'todo-list-o', iconColor: '#f97316', iconBg: '#fff7ed',

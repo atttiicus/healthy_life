@@ -2,13 +2,13 @@ import Plan from "../../models/plan";
 
 type updatePlanDataType = {
     bloodPressure?: string,
-    bmi?: string,
-    weight?: string,
-    heartRate?: string,
-    calorie?: string,
-    kilometre?: string,
-    exerciseTime?:string,
-    sleepTime?:string,
+    bmi?:           string,
+    weight?:        string,
+    heartRate?:     string,
+    calorie?:       string,
+    step_target?:   number,
+    exerciseTime?:  string,
+    sleepTime?:     string,
 }
 
 /**

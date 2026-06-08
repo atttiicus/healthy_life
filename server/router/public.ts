@@ -9,6 +9,7 @@ const project = {
   user: "/user",
   data: "/data",
   article: "/article",
+  announcement: "/announcement",
 }
 
 // ─── 管理员用户 ───────────────────────────────────────────────────────────────
@@ -224,6 +225,37 @@ router.get(project.article+"/find", controllers.article_article.getArticleByAidA
  *                             $ref: '#/components/schemas/Article'
  */
 router.get(project.article+"/title/:title", controllers.article_article.getArticleByTitleListApi)
+
+// ─── 公告 ─────────────────────────────────────────────────────────────────────
+
+/**
+ * @swagger
+ * /announcement/list:
+ *   get:
+ *     tags: [公告]
+ *     summary: 获取已发布公告列表
+ *     responses:
+ *       200:
+ *         description: 公告列表
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiOk'
+ *                 - properties:
+ *                     data:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           id:         { type: integer }
+ *                           title:      { type: string }
+ *                           content:    { type: string }
+ *                           tag:        { type: string, enum: [NEW, FIX, INFO] }
+ *                           author:     { type: string }
+ *                           created_at: { type: string, format: date-time }
+ */
+router.get(project.announcement + '/list', controllers.announcement_announcement.getAnnouncementListApi)
 
 // ─── 文件上传 ─────────────────────────────────────────────────────────────────
 

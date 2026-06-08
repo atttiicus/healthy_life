@@ -16,10 +16,10 @@ DayData.init({
     defaultValue: 0,
     comment: "数据关联用户id"
   },
-  weight:{
+  weight: {
     type: DataTypes.STRING,
     allowNull: true,
-    comment:"当日数据 体重"
+    comment: "当日数据 体重（kg）",
   },
   calorie: {
     type: DataTypes.INTEGER,
@@ -55,7 +55,11 @@ DayData.init({
 },{
   sequelize,
   modelName: "dayData",
-  freezeTableName: true
+  freezeTableName: true,
+  indexes: [
+    // uid + created_at 是高频复合查询条件（history / month / find）
+    { fields: ['uid', 'created_at'] },
+  ],
 })
 
 export default DayData

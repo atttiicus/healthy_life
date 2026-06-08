@@ -21,6 +21,10 @@
           <el-icon><Document /></el-icon>
           <span>文章管理</span>
         </el-menu-item>
+        <el-menu-item index="/announcements">
+          <el-icon><Bell /></el-icon>
+          <span>公告管理</span>
+        </el-menu-item>
       </el-menu>
     </el-aside>
 
@@ -62,7 +66,9 @@ const pageTitle = computed(() => {
     '/dashboard': '数据概览',
     '/users': '用户管理',
     '/articles': '文章管理',
+    '/announcements': '公告管理',
   }
+  if (/^\/users\/\d+\/data$/.test(route.path)) return '用户健康数据'
   return map[route.path] || ''
 })
 

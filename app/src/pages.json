@@ -75,6 +75,22 @@
 		{
 			"path": "pages/checkin/calendar",
 			"style": { "navigationBarTitleText": "打卡日历" }
+		},
+		{
+			"path": "pages/habit/index",
+			"style": { "navigationBarTitleText": "习惯养成" }
+		},
+		{
+			"path": "pages/achievement/index",
+			"style": { "navigationBarTitleText": "我的成就" }
+		},
+		{
+			"path": "pages/calendar/index",
+			"style": { "navigationBarTitleText": "健康日历" }
+		},
+		{
+			"path": "pages/mood/index",
+			"style": { "navigationBarTitleText": "心情日记" }
 		}
 	],
 	"globalStyle": {

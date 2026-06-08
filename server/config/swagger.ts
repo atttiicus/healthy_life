@@ -28,7 +28,7 @@ const options: swaggerJsdoc.Options = {
             data:    { type: 'object' },
           },
         },
-        UserInfo: {
+        UserInfo: { 
           type: 'object',
           properties: {
             uid:       { type: 'integer' },
@@ -85,12 +85,12 @@ const options: swaggerJsdoc.Options = {
             uid:           { type: 'integer' },
             bloodPressure: { type: 'string', example: '120/80' },
             bmi:           { type: 'string' },
-            weight:        { type: 'string' },
-            heartRate:     { type: 'string' },
-            calorie:       { type: 'string' },
+            weight:        { type: 'number' },
+            heartRate:     { type: 'integer' },
+            calorie:       { type: 'integer' },
             sleepTime:     { type: 'string', example: '07:30' },
-            exerciseTime:  { type: 'string' },
-            kilometre:     { type: 'string', description: '目标步数' },
+            exerciseTime:  { type: 'integer' },
+            step_target:   { type: 'integer', description: '目标步数（原 kilometre）' },
           },
         },
         Workout: {

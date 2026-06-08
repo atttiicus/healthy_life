@@ -9,8 +9,11 @@ const project = {
   data:    "/data",
   article: "/article",
   plan:    "/plan",
-  workout: "/workout",
-  checkin: "/checkin",
+  workout:     "/workout",
+  checkin:     "/checkin",
+  habit:       "/habit",
+  achievement: "/achievement",
+  mood:        "/mood",
 }
 
 router.use(jwtMiddlewareDeal)
@@ -191,6 +194,39 @@ router.get(project.data+"/find",    controllers.daydata_daydata.getCurrentDayDat
  */
 router.get(project.data+"/history", controllers.daydata_daydata.getDayDataHistory)
 
+/**
+ * @swagger
+ * /data/month:
+ *   get:
+ *     tags: [健康数据]
+ *     summary: 获取某月全部健康记录（日历视图）
+ *     security:
+ *       - UserToken: []
+ *     parameters:
+ *       - name: year
+ *         in: query
+ *         required: true
+ *         schema: { type: integer, example: 2026 }
+ *       - name: month
+ *         in: query
+ *         required: true
+ *         schema: { type: integer, example: 6 }
+ *     responses:
+ *       200:
+ *         description: 该月健康数据列表
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiOk'
+ *                 - properties:
+ *                     data:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/DayData'
+ */
+router.get(project.data+"/month", controllers.daydata_daydata.getDayDataByMonth)
+
 // ─── 健康计划 ─────────────────────────────────────────────────────────────────
 
 /**
@@ -236,7 +272,7 @@ router.get(project.plan+"/get", controllers.plan_plan.getPlanDataApi)
  *               calorie:       { type: string }
  *               sleepTime:     { type: string }
  *               exerciseTime:  { type: string }
- *               kilometre:     { type: string, description: "目标步数" }
+ *               step_target:   { type: integer, description: "目标步数" }
  *     responses:
  *       200:
  *         description: 操作成功
@@ -506,5 +542,210 @@ router.get(project.checkin + '/calendar', controllers.checkin_checkin.getCalenda
  *                         last_checkin: { type: string, format: date, nullable: true }
  */
 router.get(project.checkin + '/streak',   controllers.checkin_checkin.getStreak)
+
+// ─── 习惯养成 ──────────────────────────────────────────────────────────────────
+
+/**
+ * @swagger
+ * /habit/list:
+ *   get:
+ *     tags: [习惯养成]
+ *     summary: 获取习惯列表（含今日是否已打卡、累计完成天数）
+ *     security:
+ *       - UserToken: []
+ *     responses:
+ *       200:
+ *         description: 习惯列表
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiOk'
+ *                 - properties:
+ *                     data:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           hid:           { type: integer }
+ *                           title:         { type: string }
+ *                           icon:          { type: string }
+ *                           target_days:   { type: integer }
+ *                           checked_today: { type: boolean }
+ *                           total_days:    { type: integer }
+ * /habit/create:
+ *   post:
+ *     tags: [习惯养成]
+ *     summary: 创建新习惯
+ *     security:
+ *       - UserToken: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [title]
+ *             properties:
+ *               title:       { type: string }
+ *               icon:        { type: string, example: "star-o" }
+ *               target_days: { type: integer, example: 21 }
+ *     responses:
+ *       200:
+ *         description: 创建成功
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/ApiOk' }
+ */
+router.get(project.habit + '/list',         controllers.habit_habit.getHabitListApi)
+router.post(project.habit + '/create',      controllers.habit_habit.createHabitApi)
+
+/**
+ * @swagger
+ * /habit/{hid}/check:
+ *   post:
+ *     tags: [习惯养成]
+ *     summary: 今日打卡（幂等，重复调用不报错）
+ *     security:
+ *       - UserToken: []
+ *     parameters:
+ *       - name: hid
+ *         in: path
+ *         required: true
+ *         schema: { type: integer }
+ *     responses:
+ *       200:
+ *         description: 打卡成功
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/ApiOk' }
+ * /habit/{hid}:
+ *   delete:
+ *     tags: [习惯养成]
+ *     summary: 删除习惯
+ *     security:
+ *       - UserToken: []
+ *     parameters:
+ *       - name: hid
+ *         in: path
+ *         required: true
+ *         schema: { type: integer }
+ *     responses:
+ *       200:
+ *         description: 删除成功
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/ApiOk' }
+ */
+router.post(project.habit + '/:hid/check', controllers.habit_habit.checkHabitApi)
+router.delete(project.habit + '/:hid',     controllers.habit_habit.deleteHabitApi)
+
+// ─── 成就系统 ──────────────────────────────────────────────────────────────────
+
+/**
+ * @swagger
+ * /achievement/list:
+ *   get:
+ *     tags: [成就系统]
+ *     summary: 获取全部成就（含已解锁状态，自动触发解锁检查）
+ *     security:
+ *       - UserToken: []
+ *     responses:
+ *       200:
+ *         description: 成就列表
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiOk'
+ *                 - properties:
+ *                     data:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           id:             { type: integer }
+ *                           code:           { type: string }
+ *                           title:          { type: string }
+ *                           description:    { type: string }
+ *                           icon:           { type: string }
+ *                           condition_type: { type: string }
+ *                           condition_value: { type: integer }
+ *                           unlocked:       { type: boolean }
+ *                           unlocked_at:    { type: string, nullable: true }
+ * /achievement/mine:
+ *   get:
+ *     tags: [成就系统]
+ *     summary: 获取我已解锁的成就
+ *     security:
+ *       - UserToken: []
+ *     responses:
+ *       200:
+ *         description: 已解锁成就列表
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/ApiOk' }
+ */
+router.get(project.achievement + '/list', controllers.achievement_achievement.getAchievementListApi)
+router.get(project.achievement + '/mine', controllers.achievement_achievement.getMyAchievementsApi)
+
+// ─── 情绪记录 ──────────────────────────────────────────────────────────────────
+
+/**
+ * @swagger
+ * /mood/log:
+ *   post:
+ *     tags: [情绪记录]
+ *     summary: 记录今日心情（当天已有记录则更新）
+ *     security:
+ *       - UserToken: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [mood]
+ *             properties:
+ *               mood: { type: integer, minimum: 1, maximum: 5, description: "1=很差 5=很好" }
+ *               note: { type: string }
+ *     responses:
+ *       200:
+ *         description: 记录成功
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/ApiOk' }
+ * /mood/today:
+ *   get:
+ *     tags: [情绪记录]
+ *     summary: 获取今日心情记录
+ *     security:
+ *       - UserToken: []
+ *     responses:
+ *       200:
+ *         description: 今日心情（未记录时 data 为 null）
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/ApiOk' }
+ * /mood/history:
+ *   get:
+ *     tags: [情绪记录]
+ *     summary: 获取最近 N 天心情历史
+ *     security:
+ *       - UserToken: []
+ *     parameters:
+ *       - name: days
+ *         in: query
+ *         schema: { type: integer, default: 30 }
+ *     responses:
+ *       200:
+ *         description: 心情历史列表
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/ApiOk' }
+ */
+router.post(project.mood + '/log',     controllers.mood_mood.logMoodApi)
+router.get(project.mood  + '/today',   controllers.mood_mood.getTodayMoodApi)
+router.get(project.mood  + '/history', controllers.mood_mood.getMoodHistoryApi)
 
 export default router

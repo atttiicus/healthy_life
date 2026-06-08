@@ -36,3 +36,25 @@ export interface Stats {
   articleCount: number
   dataCount: number
 }
+
+export interface DayData {
+  did: number
+  uid: number
+  weight?: string
+  calorie?: number
+  sleepTime?: string
+  stepNum?: number
+  exerciseTime?: string
+  foods?: string
+  created_at: string
+}
+
+export interface Announcement {
+  id: number
+  title: string
+  content: string
+  tag: 'NEW' | 'FIX' | 'INFO'
+  author: string
+  is_active: boolean
+  created_at: string
+}

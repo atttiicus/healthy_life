@@ -107,8 +107,8 @@ const store = new Vuex.Store({
             const calPct = pd.calorie
                 ? (Number(cd.calorie) || 0) / Number(pd.calorie) * 100 : 80
             s += calPct >= 80 && calPct <= 110 ? 20 : calPct > 110 ? 8 : 12
-            const stepPct = pd.kilometre
-                ? (Number(cd.stepNum) || 0) / Number(pd.kilometre) * 100 : 50
+            const stepPct = pd.step_target
+                ? (Number(cd.stepNum) || 0) / Number(pd.step_target) * 100 : 50
             s += Math.round(Math.min(stepPct, 100) / 100 * 20)
             const exPct = pd.exerciseTime
                 ? (Number(cd.exerciseTime) || 0) / Number(pd.exerciseTime) * 100 : 50
@@ -136,7 +136,7 @@ const store = new Vuex.Store({
             const pd = state.userPlanData || {}
             const tips = []
             const calPct  = pd.calorie   ? (Number(cd.calorie)   || 0) / Number(pd.calorie)   * 100 : 0
-            const stepPct = pd.kilometre ? (Number(cd.stepNum)   || 0) / Number(pd.kilometre) * 100 : 0
+            const stepPct = pd.step_target ? (Number(cd.stepNum)   || 0) / Number(pd.step_target) * 100 : 0
             const exPct   = pd.exerciseTime ? (Number(cd.exerciseTime) || 0) / Number(pd.exerciseTime) * 100 : 0
             if (calPct > 110)
                 tips.push({ icon: 'warning-o',   color: 'var(--icon-warning)', bg: '#fff7ed', text: '今日卡路里摄入已超标，建议减少高热量食物，适当增加有氧运动。' })
@@ -144,8 +144,8 @@ const store = new Vuex.Store({
                 tips.push({ icon: 'fire-o',      color: 'var(--icon-amber)',   bg: '#fef9c3', text: '今日卡路里摄入不足，营养摄入过少不利于健康，请注意合理饮食。' })
             else if (calPct >= 80 && calPct <= 110)
                 tips.push({ icon: 'good-job-o',  color: 'var(--icon-primary)', bg: '#f0fdf4', text: '卡路里摄入处于合理范围，继续保持均衡饮食。' })
-            if (stepPct < 60 && pd.kilometre)
-                tips.push({ icon: 'todo-list-o', color: 'var(--icon-warning)', bg: '#fff7ed', text: `今日步数还差 ${Math.max(0, Number(pd.kilometre) - (Number(cd.stepNum) || 0))} 步，饭后散步是个好习惯。` })
+            if (stepPct < 60 && pd.step_target)
+                tips.push({ icon: 'todo-list-o', color: 'var(--icon-warning)', bg: '#fff7ed', text: `今日步数还差 ${Math.max(0, Number(pd.step_target) - (Number(cd.stepNum) || 0))} 步，饭后散步是个好习惯。` })
             if (exPct < 50 && pd.exerciseTime)
                 tips.push({ icon: 'clock-o',     color: 'var(--icon-amber)',   bg: '#fef9c3', text: '今日运动时间不足目标的一半，适量运动有助于改善新陈代谢。' })
             if (cd.sleepTime) {

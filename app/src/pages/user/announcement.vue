@@ -13,33 +13,40 @@
 
     <view class="px-4 -mt-8 flex flex-col gap-3 pb-8">
 
-      <view v-for="item in announcements" :key="item.id" class="card p-4">
+      <!-- 加载骨架 -->
+      <view v-if="loading" class="card p-4 flex items-center justify-center" style="height:120px">
+        <van-loading type="spinner" color="var(--icon-primary)" size="24px" />
+      </view>
+
+      <!-- 无公告 -->
+      <view v-else-if="!announcements.length" class="card p-6">
+        <van-empty description="暂无公告" />
+      </view>
+
+      <!-- 公告列表 -->
+      <view v-else v-for="item in announcements" :key="item.id" class="card p-4">
 
         <!-- 公告头部 -->
         <view class="flex items-center gap-2 mb-3">
           <view class="w-2 h-2 rounded-full flex-shrink-0"
-                :style="{ background: item.tagColor }"></view>
+                :style="{ background: getTagStyle(item.tag).color }"></view>
           <text class="flex-1 text-sm font-semibold text-[#1f2937]">{{ item.title }}</text>
           <view class="px-2 py-0.5 rounded-full"
-                :style="{ background: item.tagBg }">
-            <text class="text-xs font-medium" :style="{ color: item.tagColor }">
-              {{ item.tag }}
+                :style="{ background: getTagStyle(item.tag).bg }">
+            <text class="text-xs font-medium"
+                  :style="{ color: getTagStyle(item.tag).color }">
+              {{ getTagStyle(item.tag).label }}
             </text>
           </view>
         </view>
 
-        <!-- 内容行 -->
-        <view v-for="(line, i) in item.lines" :key="i"
-              class="flex items-start gap-2 mb-1.5">
-          <van-icon :name="line.icon" size="12"
-                    :color="line.color" class="mt-0.5 flex-shrink-0" />
-          <text class="text-xs text-[#6b7280] leading-relaxed flex-1">{{ line.text }}</text>
-        </view>
+        <!-- 内容 -->
+        <text class="text-xs text-[#6b7280] leading-relaxed block">{{ item.content }}</text>
 
         <!-- 底部元信息 -->
         <view class="flex items-center justify-between mt-3 pt-3"
               style="border-top:1px solid #f3f4f6">
-          <text class="text-xs text-[#9ca3af]">{{ item.date }}</text>
+          <text class="text-xs text-[#9ca3af]">{{ formatDate(item.created_at) }}</text>
           <text class="text-xs text-[#9ca3af]">{{ item.author }}</text>
         </view>
 
@@ -53,37 +60,40 @@
 export default {
   data() {
     return {
-      announcements: [
-        {
-          id: 1,
-          title: 'V1.0.3 更新公告',
-          tag: 'NEW',
-          tagColor: '#10b981',
-          tagBg: '#d1fae5',
-          date: '2024-01-28',
-          author: '管理员',
-          lines: [
-            { icon: 'add-o',     color: '#10b981', text: '文章添加模糊检索功能' },
-            { icon: 'add-o',     color: '#10b981', text: '增强食物识别' },
-            { icon: 'warning-o', color: '#f97316', text: '修复数据上传校验问题' },
-            { icon: 'warning-o', color: '#f97316', text: '修改部分文本' },
-            { icon: 'warning-o', color: '#f97316', text: '修复部分遗留问题' },
-          ],
-        },
-        {
-          id: 2,
-          title: '1月26日 BUG 修复',
-          tag: 'FIX',
-          tagColor: '#f97316',
-          tagBg: '#fff7ed',
-          date: '2024-01-26',
-          author: '管理员',
-          lines: [
-            { icon: 'warning-o', color: '#f97316', text: '修复若干已知问题，提升应用稳定性' },
-          ],
-        },
-      ],
+      loading: false,
+      announcements: [],
+      tagConfig: {
+        NEW:  { label: 'NEW',  color: '#10b981', bg: '#d1fae5' },
+        FIX:  { label: 'FIX',  color: '#f97316', bg: '#fff7ed' },
+        INFO: { label: 'INFO', color: '#2563eb', bg: '#eff6ff' },
+      },
     }
+  },
+  onShow() {
+    this.loadData()
+  },
+  methods: {
+    getTagStyle(tag) {
+      return this.tagConfig[tag] || { color: '#10b981', bg: '#d1fae5', label: tag }
+    },
+    loadData() {
+      this.loading = true
+      uni.request({
+        url: '/api/announcement/list',
+        method: 'GET',
+        success: res => {
+          this.announcements = res.data?.data || []
+        },
+        fail: () => {
+          uni.showToast({ title: '加载失败', icon: 'none' })
+        },
+        complete: () => { this.loading = false },
+      })
+    },
+    formatDate(dateStr) {
+      if (!dateStr) return ''
+      return dateStr.slice(0, 10)
+    },
   },
 }
 </script>
