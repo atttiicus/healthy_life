@@ -97,6 +97,11 @@
         <view v-if="!articleList.length" class="text-center py-16">
           <van-empty description="暂无文章" image-size="80" />
         </view>
+
+        <view v-if="!isSearchMode" class="text-center py-4">
+          <text v-if="loadingMore" class="text-xs text-[#9ca3af]">加载中...</text>
+          <text v-else-if="!hasMore && articleList.length" class="text-xs text-[#9ca3af]">已加载全部</text>
+        </view>
       </view>
     </scroll-view>
 
@@ -110,12 +115,15 @@ export default {
   data() {
     return {
       loading:      false,
+      loadingMore:  false,
       hasError:     false,
       isSearchMode: false,
       articleList:  [],
       allArticles:  [],
       inputKey:     '',
       img_prefix:   'http://localhost:2233/static/',
+      page:         1,
+      hasMore:      true,
     }
   },
   computed: {
@@ -128,17 +136,21 @@ export default {
     ...mapMutations(['setArticles']),
 
     loadArticles() {
-      this.loading  = true
-      this.hasError = false
+      this.loading     = true
+      this.hasError    = false
+      this.page        = 1
+      this.hasMore     = true
+      this.allArticles = []
       uni.request({
-        url: '/api/article/all',
+        url: '/api/article/all?page=1&limit=20',
         method: 'GET',
         success: (res) => {
           if (res.data && res.data.data) {
-            const list = res.data.data.result
-            this.allArticles = list
-            this.articleList = list
-            this.setArticles(list)
+            const { result = [], total = 0 } = res.data.data
+            this.allArticles = result
+            this.articleList = result
+            this.setArticles(result)
+            this.hasMore = result.length < total
           } else {
             this.hasError = true
           }
@@ -148,6 +160,28 @@ export default {
         },
         complete: () => {
           this.loading = false
+        },
+      })
+    },
+
+    loadMoreArticles() {
+      if (!this.hasMore || this.loadingMore) return
+      this.loadingMore = true
+      const nextPage = this.page + 1
+      uni.request({
+        url: `/api/article/all?page=${nextPage}&limit=20`,
+        method: 'GET',
+        success: (res) => {
+          if (res.data && res.data.data) {
+            const { result = [], total = 0 } = res.data.data
+            this.allArticles = [...this.allArticles, ...result]
+            this.articleList = this.allArticles
+            this.page = nextPage
+            this.hasMore = this.allArticles.length < total
+          }
+        },
+        complete: () => {
+          this.loadingMore = false
         },
       })
     },
@@ -204,7 +238,9 @@ export default {
       return d.slice(0, 10)
     },
 
-    onScrollToLower() {},
+    onScrollToLower() {
+      if (!this.isSearchMode) this.loadMoreArticles()
+    },
   },
 }
 </script>

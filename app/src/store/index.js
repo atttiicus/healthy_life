@@ -57,17 +57,26 @@ const store = new Vuex.Store({
             })
         },
         /**
-         * 获取全部文章集合函数
+         * 获取文章列表（分页）
+         * @param {number} page 页码，默认 1
+         * @returns Promise
          * */
-        requestArticleList: (content) => {
-            uni.request({
-                url: "/api/article/all",
-                method: "GET",
-                success: (res) => {
-                    if(res.data.data) {
-                        content.commit("setArticles", res.data.data.result)
-                    }
-                }
+        requestArticleList: (context, page = 1) => {
+            return new Promise((resolve, reject) => {
+                uni.request({
+                    url: `/api/article/all?page=${page}&limit=20`,
+                    method: "GET",
+                    success: (res) => {
+                        if (res.data.data) {
+                            const { result, total } = res.data.data
+                            if (page === 1) context.commit("setArticles", result)
+                            resolve({ list: result || [], total: total || 0 })
+                        } else {
+                            resolve({ list: [], total: 0 })
+                        }
+                    },
+                    fail: () => reject(new Error('网络请求失败'))
+                })
             })
         },
         /**

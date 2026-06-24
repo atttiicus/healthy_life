@@ -36,6 +36,7 @@ export const getStreakService = async (uid: number) => {
     where: { uid, is_del: 0 },
     attributes: ['checkin_date'],
     order: [['checkin_date', 'DESC']],
+    limit: 365,
   })
 
   if (!records.length) return { streak: 0, last_checkin: null }

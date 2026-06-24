@@ -219,6 +219,8 @@ export default {
       historyData:    [],
       streakData:     { streak: 0, last_checkin: null },
       checkinLoading: false,
+      _timeTimer:     null,
+      _sheepChart:    null,
     }
   },
   computed: {
@@ -300,6 +302,10 @@ export default {
   mounted() {
     this.fetchHistoryAndRender()
   },
+  onUnload() {
+    if (this._timeTimer) { clearInterval(this._timeTimer); this._timeTimer = null }
+    if (this._sheepChart) { this._sheepChart.dispose(); this._sheepChart = null }
+  },
   onShow() {
     this.loadStreak()
   },
@@ -316,7 +322,7 @@ export default {
       })
     }
     this.currentTime = dayjs().format('MM月DD日 HH:mm')
-    setInterval(() => { this.currentTime = dayjs().format('MM月DD日 HH:mm') }, 60000)
+    this._timeTimer = setInterval(() => { this.currentTime = dayjs().format('MM月DD日 HH:mm') }, 60000)
   },
   methods: {
     ...mapMutations(['setCurrentData']),
@@ -393,7 +399,8 @@ export default {
         yData.push(BASE + sleep)
       }
 
-      const chart = this.$echarts.init(el)
+      if (!this._sheepChart) this._sheepChart = this.$echarts.init(el)
+      const chart = this._sheepChart
       chart.setOption({
         grid: { top: 8, bottom: 28, left: 8, right: 12, containLabel: true },
         xAxis: {

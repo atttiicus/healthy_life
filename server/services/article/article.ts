@@ -20,10 +20,15 @@ export const getArticleInfoListByTitleService = (title: string) => {
 }
 
 /**
- * 查询所有文章
+ * 查询文章列表（分页）
  * */
-export const getArticleList = () => {
-  return Article.findAll({where: {is_del: 0}})
+export const getArticleList = (page = 1, limit = 20) => {
+  return Article.findAndCountAll({
+    where: { is_del: 0 },
+    order: [['aid', 'DESC']],
+    limit,
+    offset: (page - 1) * limit,
+  })
 }
 
 /**

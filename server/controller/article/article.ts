@@ -37,13 +37,11 @@ export const getArticleByTitleListApi = async (ctx: Context, next: Next) => {
 }
 
 /**
- * 获取所有文章api
+ * 获取文章列表 api（分页）
  * */
 export const getArticleListApi = async (ctx: Context, next: Next) => {
-
-  let result = await getArticleList()
-  if (!result) throw CODE.articleNotExist
-  ctx.body = { result }
-
+  const { page = '1', limit = '20' } = ctx.request.query
+  const result = await getArticleList(Number(page), Number(limit))
+  ctx.body = { result: result.rows.map(r => r.dataValues), total: result.count }
   return next()
 }

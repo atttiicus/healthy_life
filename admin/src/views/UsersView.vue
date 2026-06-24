@@ -59,6 +59,7 @@ import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { getUserList, deleteUser } from '../api'
 import type { User } from '../types'
+import { formatDatetime as formatDate } from '../utils/format'
 
 const router = useRouter()
 
@@ -97,7 +98,6 @@ const handleDelete = async (uid: number) => {
 
 const viewHealthData = (uid: number) => router.push(`/users/${uid}/data`)
 
-const formatDate = (date: string) => (date ? date.slice(0, 19).replace('T', ' ') : '-')
 
 onMounted(loadData)
 </script>

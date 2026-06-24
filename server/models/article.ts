@@ -46,7 +46,11 @@ Article.init({
 },{
   sequelize,
   modelName: "article",
-  freezeTableName: true
+  freezeTableName: true,
+  indexes: [
+    { fields: ['title'] },
+    { fields: ['author'] },
+  ],
 })
 
 export default Article

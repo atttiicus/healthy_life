@@ -1,4 +1,5 @@
 import dayjs from 'dayjs'
+import { fn, col } from 'sequelize'
 import Habit from '../../models/habit'
 import HabitLog from '../../models/habitLog'
 
@@ -18,14 +19,34 @@ export const getHabitListService = async (uid: number) => {
     order: [['created_at', 'ASC']],
   })
 
-  return Promise.all(habits.map(async (habit) => {
+  if (!habits.length) return []
+
+  const hids = habits.map(h => h.dataValues.hid as number)
+
+  const [todayLogs, countRows] = await Promise.all([
+    HabitLog.findAll({
+      where: { hid: hids, log_date: today, is_del: 0 },
+      attributes: ['hid'],
+    }),
+    HabitLog.findAll({
+      where: { hid: hids, is_del: 0 },
+      attributes: ['hid', [fn('COUNT', col('hid')), 'count']],
+      group: ['hid'],
+      raw: true,
+    }) as Promise<{ hid: number; count: string }[]>,
+  ])
+
+  const checkedSet = new Set(todayLogs.map(l => l.dataValues.hid as number))
+  const countMap = new Map((countRows as unknown as { hid: number; count: string }[]).map(r => [r.hid, Number(r.count)]))
+
+  return habits.map(habit => {
     const hid = habit.dataValues.hid as number
-    const [checkedToday, totalDays] = await Promise.all([
-      HabitLog.findOne({ where: { hid, log_date: today, is_del: 0 } }),
-      HabitLog.count({ where: { hid, is_del: 0 } }),
-    ])
-    return { ...habit.dataValues, checked_today: !!checkedToday, total_days: totalDays }
-  }))
+    return {
+      ...habit.dataValues,
+      checked_today: checkedSet.has(hid),
+      total_days: countMap.get(hid) ?? 0,
+    }
+  })
 }
 
 export const checkHabitService = async (uid: number, hid: number) => {

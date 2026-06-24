@@ -47,6 +47,9 @@ Habit.init({
   sequelize,
   modelName: 'habit',
   freezeTableName: true,
+  indexes: [
+    { fields: ['uid', 'is_active', 'is_del'] },
+  ],
 })
 
 export default Habit

@@ -105,6 +105,7 @@ import { ElMessage } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
 import { getArticleList, createArticle, updateArticle, deleteArticle } from '../api'
 import type { Article } from '../types'
+import { formatDatetime as formatDate } from '../utils/format'
 
 const loading = ref(false)
 const submitting = ref(false)
@@ -204,7 +205,6 @@ const handleDelete = async (aid: number) => {
   loadData()
 }
 
-const formatDate = (date: string) => (date ? date.slice(0, 19).replace('T', ' ') : '-')
 
 onMounted(loadData)
 </script>

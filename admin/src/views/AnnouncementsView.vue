@@ -100,6 +100,7 @@ import { ElMessage } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
 import { getAnnouncementList, createAnnouncement, updateAnnouncement, deleteAnnouncement } from '../api'
 import type { Announcement } from '../types'
+import { formatDatetime as formatDate } from '../utils/format'
 
 const loading = ref(false)
 const submitting = ref(false)
@@ -192,7 +193,6 @@ const handleDelete = async (id: number) => {
   loadData()
 }
 
-const formatDate = (date: string) => (date ? date.slice(0, 19).replace('T', ' ') : '-')
 
 onMounted(loadData)
 </script>

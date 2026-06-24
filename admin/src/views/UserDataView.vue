@@ -36,6 +36,7 @@ import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getUserHealthData } from '../api'
 import type { DayData } from '../types'
+import { formatDate } from '../utils/format'
 
 const route  = useRoute()
 const router = useRouter()
@@ -63,7 +64,6 @@ const loadData = async () => {
   }
 }
 
-const formatDate = (date: string) => (date ? date.slice(0, 10) : '-')
 
 onMounted(loadData)
 </script>
