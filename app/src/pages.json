@@ -73,6 +73,18 @@
 			}
 		},
 		{
+			"path": "pages/user/settings",
+			"style": {
+				"navigationBarTitleText": "管理设置"
+			}
+		},
+		{
+			"path": "pages/user/about",
+			"style": {
+				"navigationBarTitleText": "关于我们"
+			}
+		},
+		{
 			"path": "pages/checkin/calendar",
 			"style": { "navigationBarTitleText": "打卡日历" }
 		},

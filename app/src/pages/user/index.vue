@@ -94,9 +94,9 @@ export default {
     },
     settingItems() {
       return [
-        { title: '公告',     icon: 'bullhorn-o', iconColor: 'var(--icon-amber)',  bg: '#fef3c7', onTap: null },
-        { title: '管理设置', icon: 'setting-o',  iconColor: 'var(--icon-purple)', bg: '#ede9fe', onTap: null },
-        { title: '关于我们', icon: 'info-o',     iconColor: 'var(--icon-info)',   bg: '#dbeafe', onTap: null },
+        { title: '公告',     icon: 'bullhorn-o', iconColor: 'var(--icon-amber)',  bg: '#fef3c7', onTap: () => uni.navigateTo({ url: '/pages/user/announcement' }) },
+        { title: '管理设置', icon: 'setting-o',  iconColor: 'var(--icon-purple)', bg: '#ede9fe', onTap: () => uni.navigateTo({ url: '/pages/user/settings' }) },
+        { title: '关于我们', icon: 'info-o',     iconColor: 'var(--icon-info)',   bg: '#dbeafe', onTap: () => uni.navigateTo({ url: '/pages/user/about' }) },
         { title: '退出账号', icon: 'cross',      iconColor: 'var(--icon-danger)', bg: '#fee2e2', onTap: this.logout },
       ]
     },
