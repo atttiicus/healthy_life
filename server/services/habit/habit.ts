@@ -33,7 +33,7 @@ export const getHabitListService = async (uid: number) => {
       attributes: ['hid', [fn('COUNT', col('hid')), 'count']],
       group: ['hid'],
       raw: true,
-    }) as Promise<{ hid: number; count: string }[]>,
+    }),
   ])
 
   const checkedSet = new Set(todayLogs.map(l => l.dataValues.hid as number))
